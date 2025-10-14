@@ -1,5 +1,5 @@
 {
-  "name": "@kitium/detector",
+  "name": "@kitiumai/detector",
   "version": "1.0.0",
   "description": "Universal platform and framework detection for JavaScript/TypeScript applications. Detect browsers, frameworks, platforms, and capabilities with zero dependencies.",
   "keywords": [
