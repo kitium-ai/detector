@@ -48,7 +48,7 @@ console.log(result.capabilities.webComponents); // true | false
 ### Complete Detection
 
 ```typescript
-import { detect } from '@kitium/detector';
+import { detect } from '@kitiumai/detector';
 
 const result = detect();
 
@@ -73,7 +73,7 @@ console.log(result.capabilities.webgl);          // WebGL support
 ### Platform Detection
 
 ```typescript
-import { detectPlatform, isBrowser, isNode, isReactNative } from '@kitium/detector';
+import { detectPlatform, isBrowser, isNode, isReactNative } from '@kitiumai/detector';
 
 const platform = detectPlatform();
 
@@ -121,7 +121,7 @@ import {
   isAngular,
   shouldUseWebComponents,
   shouldUseReactWrapper
-} from '@kitium/detector';
+} from '@kitiumai/detector';
 
 const framework = detectFramework();
 
@@ -158,7 +158,7 @@ console.log(framework.supportsESM);         // ES Modules support
 ### Capabilities Detection
 
 ```typescript
-import { detectCapabilities } from '@kitium/detector';
+import { detectCapabilities } from '@kitiumai/detector';
 
 const caps = detectCapabilities();
 
@@ -200,7 +200,7 @@ console.log(caps.microphone);       // Microphone
 ### Debugging
 
 ```typescript
-import { debug, getSummary } from '@kitium/detector';
+import { debug, getSummary } from '@kitiumai/detector';
 
 // Log complete detection to console
 debug();
@@ -221,7 +221,7 @@ console.log(summary);
 ### Configuration Options
 
 ```typescript
-import { detect } from '@kitium/detector';
+import { detect } from '@kitiumai/detector';
 
 const result = detect({
   // Enable/disable caching (default: true)
@@ -251,18 +251,18 @@ The package supports both default and named imports:
 
 ```typescript
 // Named imports (recommended)
-import { detect, detectPlatform, detectFramework } from '@kitium/detector';
+import { detect, detectPlatform, detectFramework } from '@kitiumai/detector';
 
 // Default import
-import detector from '@kitium/detector';
+import detector from '@kitiumai/detector';
 detector.detect();
 detector.detectPlatform();
 detector.detectFramework();
 
 // Tree-shakeable imports
-import { detectPlatform } from '@kitium/detector/platform';
-import { detectFramework } from '@kitium/detector/framework';
-import { detectCapabilities } from '@kitium/detector/capabilities';
+import { detectPlatform } from '@kitiumai/detector/platform';
+import { detectFramework } from '@kitiumai/detector/framework';
+import { detectCapabilities } from '@kitiumai/detector/capabilities';
 ```
 
 ## Supported Platforms
@@ -381,7 +381,7 @@ import type {
   PlatformDetectionResult,
   FrameworkDetectionResult,
   CapabilityDetectionResult,
-} from '@kitium/detector';
+} from '@kitiumai/detector';
 ```
 
 ## Use Cases
@@ -389,7 +389,7 @@ import type {
 ### Universal Component Library
 
 ```typescript
-import { detect } from '@kitium/detector';
+import { detect } from '@kitiumai/detector';
 
 function getComponent() {
   const { platform, framework } = detect();
@@ -413,7 +413,7 @@ function getComponent() {
 ### Conditional Feature Loading
 
 ```typescript
-import { detectCapabilities } from '@kitium/detector';
+import { detectCapabilities } from '@kitiumai/detector';
 
 const caps = detectCapabilities();
 
@@ -429,7 +429,7 @@ if (caps.webgl2) {
 ### Analytics and Telemetry
 
 ```typescript
-import { detect, getSummary } from '@kitium/detector';
+import { detect, getSummary } from '@kitiumai/detector';
 
 const info = detect();
 
@@ -445,7 +445,7 @@ sendAnalytics({
 ### Progressive Enhancement
 
 ```typescript
-import { detectCapabilities } from '@kitium/detector';
+import { detectCapabilities } from '@kitiumai/detector';
 
 const caps = detectCapabilities();
 

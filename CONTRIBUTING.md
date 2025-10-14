@@ -1,6 +1,6 @@
-# Contributing to @kitium/detector
+# Contributing to @kitiumai/detector
 
-Thank you for your interest in contributing to @kitium/detector! We welcome contributions from the community and are grateful for any help you can provide.
+Thank you for your interest in contributing to @kitiumai/detector! We welcome contributions from the community and are grateful for any help you can provide.
 
 ## Code of Conduct
 
@@ -22,7 +22,7 @@ Before creating bug reports, please check the existing issues to avoid duplicate
   - Browser (Chrome, Firefox, Safari, etc.) and version
   - Node.js version
   - Framework (React, Vue, Angular, etc.) and version
-  - @kitium/detector version
+  - @kitiumai/detector version
 
 **Example Bug Report:**
 
@@ -30,7 +30,7 @@ Before creating bug reports, please check the existing issues to avoid duplicate
 **Title:** Platform detection fails in Electron on macOS
 
 **Description:**
-When using @kitium/detector in an Electron application on macOS, `detectPlatform()` incorrectly returns 'web' instead of 'electron'.
+When using @kitiumai/detector in an Electron application on macOS, `detectPlatform()` incorrectly returns 'web' instead of 'electron'.
 
 **Steps to Reproduce:**
 1. Create an Electron app
@@ -46,7 +46,7 @@ Returns `{ platform: 'web', ... }`
 **Environment:**
 - OS: macOS 14.0
 - Electron: 27.0.0
-- @kitium/detector: 1.0.0
+- @kitiumai/detector: 1.0.0
 ```
 
 ### Suggesting Enhancements
@@ -72,7 +72,7 @@ Astro is growing in popularity and users would benefit from automatic detection.
 
 **Proposed API:**
 ```typescript
-import { isAstro, detectFramework } from '@kitium/detector';
+import { isAstro, detectFramework } from '@kitiumai/detector';
 
 if (isAstro()) {
   console.log('Running in Astro');
@@ -429,4 +429,4 @@ By contributing, you agree that your contributions will be licensed under the MI
 
 ---
 
-Thank you for contributing to @kitium/detector! 🎉
+Thank you for contributing to @kitiumai/detector! 🎉

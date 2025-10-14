@@ -83,7 +83,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 1.0.0 - Initial Release
 
-This is the first stable release of @kitium/detector, a universal platform and framework detection library for JavaScript/TypeScript applications.
+This is the first stable release of @kitiumai/detector, a universal platform and framework detection library for JavaScript/TypeScript applications.
 
 **Highlights:**
 - 🎯 Universal detection across all platforms and frameworks
@@ -103,11 +103,11 @@ This is the first stable release of @kitium/detector, a universal platform and f
 
 **Getting Started:**
 ```bash
-npm install @kitium/detector
+npm install @kitiumai/detector
 ```
 
 ```typescript
-import { detect } from '@kitium/detector';
+import { detect } from '@kitiumai/detector';
 
 const result = detect();
 console.log(result.platform.platform);  // 'web' | 'node' | 'react-native' | ...

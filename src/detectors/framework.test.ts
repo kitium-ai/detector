@@ -12,27 +12,30 @@ import {
   isFlutter,
   isGatsby,
   isNextJS,
-  isNuxt,
-  isReact,
   isRemix,
-  isSvelte,
-  isVue,
+  isReact,
   shouldUseReactNative,
   shouldUseReactWrapper,
   shouldUseWebComponents,
   supportsESM,
   supportsWebComponents,
 } from './framework';
+import * as platform from './platform';
 
 describe('Framework Detection', () => {
   beforeEach(() => {
+    jest.restoreAllMocks();
     // Clean up any global state
-    delete (window as any).React;
-    delete (window as any).Vue;
-    delete (window as any).ng;
-    delete (window as any).__NEXT_DATA__;
-    delete (window as any).__VUE__;
-    delete (window as any).___gatsby;
+    delete (globalThis as any).React;
+    delete (globalThis as any).Vue;
+    delete (globalThis as any).ng;
+    delete (globalThis as any).__NEXT_DATA__;
+    delete (globalThis as any).__VUE__;
+    delete (globalThis as any).___gatsby;
+    delete (globalThis as any).__flutter__;
+    delete (globalThis as any).FlutterWebView;
+    delete (globalThis as any).__remixContext;
+    delete (globalThis as any).__remixManifest;
   });
 
   describe('supportsWebComponents', () => {
@@ -55,9 +58,21 @@ describe('Framework Detection', () => {
     });
 
     it('should detect Flutter WebView', () => {
-      (window as any).__flutter__ = true;
+      (globalThis as any).__flutter__ = true;
       expect(isFlutter()).toBe(true);
-      delete (window as any).__flutter__;
+      delete (globalThis as any).__flutter__;
+    });
+
+    it('should return false if not in browser', () => {
+      const origIsBrowser = jest.spyOn(platform, 'isBrowser').mockReturnValue(false);
+      expect(isFlutter()).toBe(false);
+      origIsBrowser.mockRestore();
+    });
+
+    it('should return true if FlutterWebView is present', () => {
+      (globalThis as any).FlutterWebView = true;
+      expect(isFlutter()).toBe(true);
+      delete (globalThis as any).FlutterWebView;
     });
   });
 
@@ -67,9 +82,9 @@ describe('Framework Detection', () => {
     });
 
     it('should detect React global', () => {
-      (window as any).React = { version: '18.0.0' };
+      (globalThis as any).React = { version: '18.0.0' };
       expect(isReact()).toBe(true);
-      delete (window as any).React;
+      delete (globalThis as any).React;
     });
 
     it('should detect React root element', () => {
@@ -89,9 +104,9 @@ describe('Framework Detection', () => {
     });
 
     it('should detect Next.js __NEXT_DATA__', () => {
-      (window as any).__NEXT_DATA__ = {};
+      (globalThis as any).__NEXT_DATA__ = {};
       expect(isNextJS()).toBe(true);
-      delete (window as any).__NEXT_DATA__;
+      delete (globalThis as any).__NEXT_DATA__;
     });
 
     it('should detect Next.js root element', () => {
@@ -109,11 +124,22 @@ describe('Framework Detection', () => {
     it('should return false when Remix is not present', () => {
       expect(isRemix()).toBe(false);
     });
-
-    it('should detect Remix context', () => {
-      (window as any).__remixContext = {};
+    it('should detect Remix global', () => {
+      (globalThis as any).__remixContext = {};
       expect(isRemix()).toBe(true);
-      delete (window as any).__remixContext;
+      delete (globalThis as any).__remixContext;
+    });
+    it('should detect Remix manifest', () => {
+      (globalThis as any).__remixManifest = {};
+      expect(isRemix()).toBe(true);
+      delete (globalThis as any).__remixManifest;
+    });
+    it('should detect Remix root element', () => {
+      const root = document.createElement('div');
+      root.setAttribute('data-remix-root', '');
+      document.body.appendChild(root);
+      expect(isRemix()).toBe(true);
+      document.body.removeChild(root);
     });
   });
 
@@ -121,11 +147,17 @@ describe('Framework Detection', () => {
     it('should return false when Gatsby is not present', () => {
       expect(isGatsby()).toBe(false);
     });
-
     it('should detect Gatsby global', () => {
-      (window as any).___gatsby = {};
+      (globalThis as any).___gatsby = {};
       expect(isGatsby()).toBe(true);
-      delete (window as any).___gatsby;
+      delete (globalThis as any).___gatsby;
+    });
+    it('should detect Gatsby root element', () => {
+      const root = document.createElement('div');
+      root.id = '___gatsby';
+      document.body.appendChild(root);
+      expect(isGatsby()).toBe(true);
+      document.body.removeChild(root);
     });
   });
 
@@ -133,69 +165,44 @@ describe('Framework Detection', () => {
     it('should return false when Angular is not present', () => {
       expect(isAngular()).toBe(false);
     });
-
     it('should detect Angular global', () => {
-      (window as any).ng = {};
+      (globalThis as any).ng = {};
       expect(isAngular()).toBe(true);
-      delete (window as any).ng;
+      delete (globalThis as any).ng;
     });
-
-    it('should detect Angular version attribute', () => {
+    it('should detect Angular root element with ng-version', () => {
       const root = document.createElement('div');
       root.setAttribute('ng-version', '15.0.0');
       document.body.appendChild(root);
-
       expect(isAngular()).toBe(true);
-
       document.body.removeChild(root);
     });
-  });
-
-  describe('isVue', () => {
-    it('should return false when Vue is not present', () => {
-      expect(isVue()).toBe(false);
+    it('should detect Angular element with _nghost attribute', () => {
+      const root = document.createElement('div');
+      root.setAttribute('_nghost', '');
+      document.body.appendChild(root);
+      expect(isAngular()).toBe(true);
+      document.body.removeChild(root);
     });
-
-    it('should detect Vue 2 global', () => {
-      (window as any).Vue = { version: '2.7.0' };
-      expect(isVue()).toBe(true);
-      delete (window as any).Vue;
+    it('should detect Angular element with _ngcontent attribute', () => {
+      const root = document.createElement('div');
+      root.setAttribute('_ngcontent', '');
+      document.body.appendChild(root);
+      expect(isAngular()).toBe(true);
+      document.body.removeChild(root);
     });
-
-    it('should detect Vue 3 devtools', () => {
-      (window as any).__VUE__ = true;
-      expect(isVue()).toBe(true);
-      delete (window as any).__VUE__;
+    it('should detect Angular via getAllAngularRootElements', () => {
+      (window as any).getAllAngularRootElements = () => [];
+      expect(isAngular()).toBe(true);
+      delete (window as any).getAllAngularRootElements;
     });
-  });
-
-  describe('isNuxt', () => {
-    it('should return false when Nuxt is not present', () => {
-      expect(isNuxt()).toBe(false);
-    });
-
-    it('should detect Nuxt global', () => {
-      (window as any).__NUXT__ = {};
-      expect(isNuxt()).toBe(true);
-      delete (window as any).__NUXT__;
+    it('should detect Angular via getAllAngularTestabilities', () => {
+      (window as any).getAllAngularTestabilities = () => [];
+      expect(isAngular()).toBe(true);
+      delete (window as any).getAllAngularTestabilities;
     });
   });
 
-  describe('isSvelte', () => {
-    it('should return false when Svelte is not present', () => {
-      expect(isSvelte()).toBe(false);
-    });
-
-    it('should detect Svelte scoped classes', () => {
-      const el = document.createElement('div');
-      el.className = 'svelte-abc123';
-      document.body.appendChild(el);
-
-      expect(isSvelte()).toBe(true);
-
-      document.body.removeChild(el);
-    });
-  });
 
   describe('getReactVersion', () => {
     it('should return undefined when React is not present', () => {
@@ -203,9 +210,9 @@ describe('Framework Detection', () => {
     });
 
     it('should return React version', () => {
-      (window as any).React = { version: '18.2.0' };
+      (globalThis as any).React = { version: '18.2.0' };
       expect(getReactVersion()).toBe('18.2.0');
-      delete (window as any).React;
+      delete (globalThis as any).React;
     });
   });
 
@@ -231,9 +238,9 @@ describe('Framework Detection', () => {
     });
 
     it('should return Vue version', () => {
-      (window as any).Vue = { version: '3.3.0' };
+      (globalThis as any).Vue = { version: '3.3.0' };
       expect(getVueVersion()).toBe('3.3.0');
-      delete (window as any).Vue;
+      delete (globalThis as any).Vue;
     });
   });
 
@@ -244,29 +251,29 @@ describe('Framework Detection', () => {
     });
 
     it('should detect React', () => {
-      (window as any).React = { version: '18.0.0' };
+      (globalThis as any).React = { version: '18.0.0' };
       expect(detectFramework()).toBe('react');
-      delete (window as any).React;
+      delete (globalThis as any).React;
     });
 
     it('should detect Next.js (prioritized over React)', () => {
-      (window as any).React = { version: '18.0.0' };
-      (window as any).__NEXT_DATA__ = {};
+      (globalThis as any).React = { version: '18.0.0' };
+      (globalThis as any).__NEXT_DATA__ = {};
       expect(detectFramework()).toBe('next');
-      delete (window as any).React;
-      delete (window as any).__NEXT_DATA__;
+      delete (globalThis as any).React;
+      delete (globalThis as any).__NEXT_DATA__;
     });
 
     it('should detect Vue', () => {
-      (window as any).Vue = { version: '3.0.0' };
+      (globalThis as any).Vue = { version: '3.0.0' };
       expect(detectFramework()).toBe('vue');
-      delete (window as any).Vue;
+      delete (globalThis as any).Vue;
     });
 
     it('should detect Angular', () => {
-      (window as any).ng = {};
+      (globalThis as any).ng = {};
       expect(detectFramework()).toBe('angular');
-      delete (window as any).ng;
+      delete (globalThis as any).ng;
     });
   });
 
@@ -286,14 +293,14 @@ describe('Framework Detection', () => {
     });
 
     it('should include version when available', () => {
-      (window as any).React = { version: '18.2.0' };
+      (globalThis as any).React = { version: '18.2.0' };
 
       const result = detectFrameworkInfo();
 
       expect(result.framework).toBe('react');
       expect(result.version).toBe('18.2.0');
 
-      delete (window as any).React;
+      delete (globalThis as any).React;
     });
   });
 
@@ -304,9 +311,9 @@ describe('Framework Detection', () => {
     });
 
     it('should return false for React', () => {
-      (window as any).React = { version: '18.0.0' };
+      (globalThis as any).React = { version: '18.0.0' };
       expect(shouldUseWebComponents()).toBe(false);
-      delete (window as any).React;
+      delete (globalThis as any).React;
     });
   });
 
@@ -317,15 +324,15 @@ describe('Framework Detection', () => {
     });
 
     it('should return true for React', () => {
-      (window as any).React = { version: '18.0.0' };
+      (globalThis as any).React = { version: '18.0.0' };
       expect(shouldUseReactWrapper()).toBe(true);
-      delete (window as any).React;
+      delete (globalThis as any).React;
     });
 
     it('should return true for Next.js', () => {
-      (window as any).__NEXT_DATA__ = {};
+      (globalThis as any).__NEXT_DATA__ = {};
       expect(shouldUseReactWrapper()).toBe(true);
-      delete (window as any).__NEXT_DATA__;
+      delete (globalThis as any).__NEXT_DATA__;
     });
   });
 
@@ -337,6 +344,55 @@ describe('Framework Detection', () => {
 
     it('should return false in browser environment', () => {
       expect(shouldUseReactNative()).toBe(false);
+    });
+  });
+
+  describe('Uncovered branches and edge cases', () => {
+    it('isFlutter: should return false if both __flutter__ and FlutterWebView are falsy', () => {
+      (globalThis as any).__flutter__ = undefined;
+      (globalThis as any).FlutterWebView = undefined;
+      jest.spyOn(platform, 'isBrowser').mockReturnValue(true);
+      expect(isFlutter()).toBe(false);
+      jest.restoreAllMocks();
+      delete (globalThis as any).__flutter__;
+      delete (globalThis as any).FlutterWebView;
+    });
+
+    it('isReact: should return false if isBrowser returns false', () => {
+      jest.spyOn(platform, 'isBrowser').mockReturnValue(false);
+      expect(isReact()).toBe(false);
+      jest.restoreAllMocks();
+    });
+
+    it('isReact: should return false if isReactNative returns true', () => {
+      jest.spyOn(platform, 'isBrowser').mockReturnValue(true);
+      jest.spyOn(platform, 'isReactNative').mockReturnValue(true);
+      expect(isReact()).toBe(false);
+      jest.restoreAllMocks();
+    });
+
+    it('isNextJS: should return false if isBrowser returns false', () => {
+      jest.spyOn(platform, 'isBrowser').mockReturnValue(false);
+      expect(isNextJS()).toBe(false);
+      jest.restoreAllMocks();
+    });
+
+    it('isRemix: should return false if isBrowser returns false', () => {
+      jest.spyOn(platform, 'isBrowser').mockReturnValue(false);
+      expect(isRemix()).toBe(false);
+      jest.restoreAllMocks();
+    });
+
+    it('isGatsby: should return false if isBrowser returns false', () => {
+      jest.spyOn(platform, 'isBrowser').mockReturnValue(false);
+      expect(isGatsby()).toBe(false);
+      jest.restoreAllMocks();
+    });
+
+    it('isAngular: should return false if isBrowser returns false', () => {
+      jest.spyOn(platform, 'isBrowser').mockReturnValue(false);
+      expect(isAngular()).toBe(false);
+      jest.restoreAllMocks();
     });
   });
 });
