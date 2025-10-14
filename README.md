@@ -1,8 +1,8 @@
-# @kitium/detector
+# @kitiumai/detector
 
 > Universal platform and framework detection for JavaScript/TypeScript applications
 
-[![npm version](https://badge.fury.io/js/%40kitium%2Fdetector.svg)](https://www.npmjs.com/package/@kitium/detector)
+[![npm version](https://badge.fury.io/js/%40kitiumai%2Fdetector.svg)](https://www.npmjs.com/package/@kitiumai/detector)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)
 
@@ -20,21 +20,21 @@ Detect browsers, frameworks, platforms, and capabilities with **zero dependencie
 ## Installation
 
 ```bash
-npm install @kitium/detector
+npm install @kitiumai/detector
 ```
 
 ```bash
-yarn add @kitium/detector
+yarn add @kitiumai/detector
 ```
 
 ```bash
-pnpm add @kitium/detector
+pnpm add @kitiumai/detector
 ```
 
 ## Quick Start
 
 ```typescript
-import { detect } from '@kitium/detector';
+import { detect } from '@kitiumai/detector';
 
 const result = detect();
 

@@ -197,8 +197,11 @@ describe('Platform Detection', () => {
 
       if (result.isBrowser) {
         expect(result).toHaveProperty('browser');
-        expect(result.browser).toHaveProperty('name');
-        expect(typeof result.browser.name).toBe('string');
+        expect(result.browser).toBeDefined();
+        if (result.browser) {
+          expect(result.browser).toHaveProperty('name');
+          expect(typeof result.browser.name).toBe('string');
+        }
       }
     });
   });
