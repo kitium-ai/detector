@@ -1,0 +1,99 @@
+{
+  "name": "@kitium/detector",
+  "version": "1.0.0",
+  "description": "Universal platform and framework detection for JavaScript/TypeScript applications. Detect browsers, frameworks, platforms, and capabilities with zero dependencies.",
+  "keywords": [
+    "detector",
+    "detection",
+    "platform",
+    "framework",
+    "browser",
+    "react",
+    "vue",
+    "angular",
+    "svelte",
+    "solid",
+    "web-components",
+    "capabilities",
+    "user-agent",
+    "runtime",
+    "environment",
+    "universal",
+    "isomorphic",
+    "ssr",
+    "react-native",
+    "electron",
+    "capacitor"
+  ],
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./platform": {
+      "import": "./dist/detectors/platform.mjs",
+      "require": "./dist/detectors/platform.js",
+      "types": "./dist/detectors/platform.d.ts"
+    },
+    "./framework": {
+      "import": "./dist/detectors/framework.mjs",
+      "require": "./dist/detectors/framework.js",
+      "types": "./dist/detectors/framework.d.ts"
+    },
+    "./capabilities": {
+      "import": "./dist/detectors/capabilities.mjs",
+      "require": "./dist/detectors/capabilities.js",
+      "types": "./dist/detectors/capabilities.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "build:watch": "tsup --watch",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint \"src/**/*.ts\"",
+    "lint:fix": "eslint \"src/**/*.ts\" --fix",
+    "type-check": "tsc --noEmit",
+    "prepublishOnly": "npm run build && npm run test",
+    "clean": "rimraf dist"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kitium-ai/detector.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kitium-ai/detector/issues"
+  },
+  "homepage": "https://github.com/kitium-ai/detector#readme",
+  "author": "Kitium.AI LLP",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/jest": "^29.5.12",
+    "@types/node": "^20.11.19",
+    "@typescript-eslint/eslint-plugin": "^7.0.1",
+    "@typescript-eslint/parser": "^7.0.1",
+    "eslint": "^8.56.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "rimraf": "^5.0.5",
+    "ts-jest": "^29.1.2",
+    "tsup": "^8.0.2",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

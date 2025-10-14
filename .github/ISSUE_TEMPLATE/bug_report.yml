@@ -1,0 +1,146 @@
+name: 🐛 Bug Report
+description: Report a bug or unexpected behavior
+title: "[Bug]: "
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug! Please fill out the information below to help us resolve the issue.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: A clear and concise description of what the bug is.
+      placeholder: Tell us what you see!
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: Steps to reproduce the behavior
+      placeholder: |
+        1. Import @kitium/detector
+        2. Call detectPlatform()
+        3. See error...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen?
+      placeholder: I expected...
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: What actually happened?
+      placeholder: Instead...
+    validations:
+      required: true
+
+  - type: textarea
+    id: code
+    attributes:
+      label: Code Sample
+      description: Please provide a minimal code sample that reproduces the issue
+      render: typescript
+      placeholder: |
+        import { detect } from '@kitium/detector';
+
+        const result = detect();
+        console.log(result);
+    validations:
+      required: false
+
+  - type: input
+    id: version
+    attributes:
+      label: "@kitium/detector Version"
+      description: What version of @kitium/detector are you using?
+      placeholder: "1.0.0"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      description: What platform are you running on?
+      multiple: false
+      options:
+        - Web (Browser)
+        - Node.js
+        - React Native
+        - Electron
+        - Capacitor
+        - Cordova
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: os
+    attributes:
+      label: Operating System
+      description: What OS are you using?
+      placeholder: "Windows 11, macOS 14, Ubuntu 22.04, etc."
+    validations:
+      required: true
+
+  - type: input
+    id: browser
+    attributes:
+      label: Browser (if applicable)
+      description: What browser and version?
+      placeholder: "Chrome 120, Firefox 121, Safari 17, etc."
+    validations:
+      required: false
+
+  - type: input
+    id: node
+    attributes:
+      label: Node.js Version (if applicable)
+      description: What version of Node.js?
+      placeholder: "20.11.0"
+    validations:
+      required: false
+
+  - type: input
+    id: framework
+    attributes:
+      label: Framework (if applicable)
+      description: What framework are you using?
+      placeholder: "React 18.2.0, Vue 3.3.0, Angular 17.0.0, etc."
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Add any other context about the problem here
+      placeholder: Screenshots, error messages, logs, etc.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Pre-submission Checklist
+      description: Please verify the following
+      options:
+        - label: I have searched existing issues to ensure this is not a duplicate
+          required: true
+        - label: I have provided all required information above
+          required: true
+        - label: I am using the latest version of @kitium/detector
+          required: false
