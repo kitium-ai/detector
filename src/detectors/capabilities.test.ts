@@ -141,7 +141,7 @@ describe('capabilities module', () => {
     });
     it('should return false if localStorage throws error', () => {
       jest.spyOn(platform, 'isBrowser').mockReturnValue(true);
-      const origSetItem = Storage.prototype.setItem;
+      const origSetItem = Storage.prototype.setItem.bind(Storage.prototype);
       Storage.prototype.setItem = jest.fn(() => {
         throw new Error('QuotaExceededError');
       });
@@ -161,7 +161,7 @@ describe('capabilities module', () => {
     });
     it('should return false if sessionStorage throws error', () => {
       jest.spyOn(platform, 'isBrowser').mockReturnValue(true);
-      const origSetItem = Storage.prototype.setItem;
+      const origSetItem = Storage.prototype.setItem.bind(Storage.prototype);
       Storage.prototype.setItem = jest.fn(() => {
         throw new Error('QuotaExceededError');
       });

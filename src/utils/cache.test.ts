@@ -23,7 +23,7 @@ describe('cache utility', () => {
 
   it('should return null if window is undefined', () => {
     const origWindow = global.window;
-    // @ts-ignore
+    // @ts-expect-error - Testing behavior when window is undefined
     delete global.window;
     expect(getCached()).toBeNull();
     global.window = origWindow;
