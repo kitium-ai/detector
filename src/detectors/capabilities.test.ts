@@ -131,6 +131,16 @@ describe('capabilities module', () => {
   });
 
   describe('hasLocalStorage', () => {
+    let originalSetItem: typeof Storage.prototype.setItem;
+
+    beforeEach(() => {
+      originalSetItem = Storage.prototype.setItem;
+    });
+
+    afterEach(() => {
+      Storage.prototype.setItem = originalSetItem;
+    });
+
     it('should return false if not in browser', () => {
       jest.spyOn(platform, 'isBrowser').mockReturnValue(false);
       expect(capabilities.hasLocalStorage()).toBe(false);
@@ -141,16 +151,24 @@ describe('capabilities module', () => {
     });
     it('should return false if localStorage throws error', () => {
       jest.spyOn(platform, 'isBrowser').mockReturnValue(true);
-      const origSetItem = Storage.prototype.setItem.bind(Storage.prototype);
       Storage.prototype.setItem = jest.fn(() => {
         throw new Error('QuotaExceededError');
       });
       expect(capabilities.hasLocalStorage()).toBe(false);
-      Storage.prototype.setItem = origSetItem;
     });
   });
 
   describe('hasSessionStorage', () => {
+    let originalSetItem: typeof Storage.prototype.setItem;
+
+    beforeEach(() => {
+      originalSetItem = Storage.prototype.setItem;
+    });
+
+    afterEach(() => {
+      Storage.prototype.setItem = originalSetItem;
+    });
+
     it('should return false if not in browser', () => {
       jest.spyOn(platform, 'isBrowser').mockReturnValue(false);
       expect(capabilities.hasSessionStorage()).toBe(false);
@@ -161,12 +179,10 @@ describe('capabilities module', () => {
     });
     it('should return false if sessionStorage throws error', () => {
       jest.spyOn(platform, 'isBrowser').mockReturnValue(true);
-      const origSetItem = Storage.prototype.setItem.bind(Storage.prototype);
       Storage.prototype.setItem = jest.fn(() => {
         throw new Error('QuotaExceededError');
       });
       expect(capabilities.hasSessionStorage()).toBe(false);
-      Storage.prototype.setItem = origSetItem;
     });
   });
 
