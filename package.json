@@ -30,24 +30,24 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
-      "require": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/index.js"
     },
     "./platform": {
+      "types": "./dist/detectors/platform.d.ts",
       "import": "./dist/detectors/platform.mjs",
-      "require": "./dist/detectors/platform.js",
-      "types": "./dist/detectors/platform.d.ts"
+      "require": "./dist/detectors/platform.js"
     },
     "./framework": {
+      "types": "./dist/detectors/framework.d.ts",
       "import": "./dist/detectors/framework.mjs",
-      "require": "./dist/detectors/framework.js",
-      "types": "./dist/detectors/framework.d.ts"
+      "require": "./dist/detectors/framework.js"
     },
     "./capabilities": {
+      "types": "./dist/detectors/capabilities.d.ts",
       "import": "./dist/detectors/capabilities.mjs",
-      "require": "./dist/detectors/capabilities.js",
-      "types": "./dist/detectors/capabilities.d.ts"
+      "require": "./dist/detectors/capabilities.js"
     }
   },
   "files": [
