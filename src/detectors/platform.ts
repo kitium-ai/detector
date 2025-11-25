@@ -11,6 +11,9 @@ import type {
   PlatformType,
   RuntimeType,
 } from '../types';
+import { getClientHintsLowEntropy, getBrowserFromClientHints } from '../utils/client-hints';
+import { detectDeviceInfo } from '../utils/device';
+import { detectLocalizationInfo } from '../utils/localization';
 
 /**
  * Detect if running in Node.js
@@ -359,14 +362,68 @@ export function detectRuntime(): RuntimeType {
 }
 
 /**
- * Complete platform detection
+ * Complete platform detection with confidence scores
  */
-export function detectPlatformInfo(): PlatformDetectionResult {
+export function detectPlatformInfo(
+  options: {
+    useClientHints?: boolean;
+    deviceInfo?: boolean;
+    localization?: boolean;
+    privacyMode?: boolean;
+  } = {}
+): PlatformDetectionResult {
+  const {
+    useClientHints = true,
+    deviceInfo = false,
+    localization = false,
+    privacyMode = false,
+  } = options;
+
+  const methods: string[] = [];
+  let confidence = 1.0;
+
   const platform = detectPlatform();
   const runtime = detectRuntime();
   const mobile = isMobile();
   const server = isNode();
   const browser = isBrowser();
+
+  methods.push('platform-detection');
+  methods.push('runtime-detection');
+
+  // Use User-Agent Client Hints if available and enabled
+  let browserInfo: { name: BrowserType; version?: string } | undefined;
+
+  if (browser && !privacyMode) {
+    if (useClientHints) {
+      try {
+        const clientHints = getClientHintsLowEntropy();
+        if (clientHints) {
+          const hintsBrowser = getBrowserFromClientHints(clientHints);
+          if (hintsBrowser) {
+            browserInfo = {
+              name: hintsBrowser.name as BrowserType,
+              version: hintsBrowser.version,
+            };
+            methods.push('client-hints');
+            confidence = 0.95; // Client Hints is more reliable
+          }
+        }
+      } catch {
+        // Client Hints not available, fallback to User-Agent
+      }
+    }
+
+    // Fallback to User-Agent parsing if Client Hints not used
+    if (!browserInfo) {
+      browserInfo = {
+        name: detectBrowser(),
+        version: getBrowserVersion(),
+      };
+      methods.push('user-agent-parsing');
+      confidence = 0.8; // User-Agent parsing is less reliable
+    }
+  }
 
   const result: PlatformDetectionResult = {
     platform,
@@ -376,25 +433,49 @@ export function detectPlatformInfo(): PlatformDetectionResult {
     isMobile: mobile,
     isDesktop: !mobile && browser,
     isNative: runtime === 'mobile-native' || runtime === 'desktop-native',
+    confidence,
+    methods,
   };
 
-  if (mobile) {
-    result.os = {
-      name: detectMobileOS(),
-      version: getOSVersion(),
-    };
-  } else {
-    result.os = {
-      name: detectDesktopOS(),
-      version: getOSVersion(),
-    };
+  // OS detection
+  if (!privacyMode) {
+    if (mobile) {
+      result.os = {
+        name: detectMobileOS(),
+        version: getOSVersion(),
+      };
+      methods.push('mobile-os-detection');
+    } else {
+      result.os = {
+        name: detectDesktopOS(),
+        version: getOSVersion(),
+      };
+      methods.push('desktop-os-detection');
+    }
   }
 
-  if (browser) {
-    result.browser = {
-      name: detectBrowser(),
-      version: getBrowserVersion(),
-    };
+  if (browserInfo) {
+    result.browser = browserInfo;
+  }
+
+  // Device information
+  if (deviceInfo && browser) {
+    try {
+      result.device = detectDeviceInfo();
+      methods.push('device-detection');
+    } catch {
+      // Device detection failed
+    }
+  }
+
+  // Localization information
+  if (localization && browser) {
+    try {
+      result.localization = detectLocalizationInfo();
+      methods.push('localization-detection');
+    } catch {
+      // Localization detection failed
+    }
   }
 
   return result;

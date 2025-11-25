@@ -3,6 +3,14 @@
  */
 
 import type { DetectionResult } from '../types';
+import { LoggerFactory, LoggerType } from '@kitiumai/logger';
+
+const logger = LoggerFactory.create({
+  type: LoggerType.CONSOLE,
+  serviceName: '@kitiumai/detector:cache',
+  includeTimestamp: false,
+  colors: false,
+});
 
 const CACHE_KEY = '__kitium_detection_cache__';
 const MAX_CACHE_AGE = 1000 * 60 * 5; // 5 minutes
@@ -35,7 +43,8 @@ export function getCached(): DetectionResult | null {
     }
 
     return cached.data;
-  } catch {
+  } catch (error) {
+    logger.warn('Failed to retrieve cached detection result', { error });
     return null;
   }
 }
@@ -55,8 +64,8 @@ export function setCached(data: DetectionResult): void {
     };
 
     (window as any)[CACHE_KEY] = entry;
-  } catch {
-    // Ignore cache errors
+  } catch (error) {
+    logger.warn('Failed to cache detection result', { error });
   }
 }
 
@@ -70,7 +79,7 @@ export function clearCache(): void {
 
   try {
     delete (window as any)[CACHE_KEY];
-  } catch {
-    // Ignore clear errors
+  } catch (error) {
+    logger.warn('Failed to clear cached detection result', { error });
   }
 }

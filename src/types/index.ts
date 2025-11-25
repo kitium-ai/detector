@@ -74,6 +74,30 @@ export type MobileOSType = 'ios' | 'android' | 'unknown';
 export type DesktopOSType = 'windows' | 'macos' | 'linux' | 'chromeos' | 'unknown';
 
 /**
+ * Device information
+ */
+export interface DeviceInfo {
+  type: 'mobile' | 'tablet' | 'desktop' | 'tv' | 'unknown';
+  screen: {
+    width: number;
+    height: number;
+    pixelRatio: number;
+  };
+  touch: boolean;
+  orientation?: 'portrait' | 'landscape';
+}
+
+/**
+ * Localization information
+ */
+export interface LocalizationInfo {
+  language: string;
+  languages: string[];
+  timezone: string;
+  locale: string;
+}
+
+/**
  * Platform detection result
  */
 export interface PlatformDetectionResult {
@@ -84,6 +108,8 @@ export interface PlatformDetectionResult {
   isMobile: boolean;
   isDesktop: boolean;
   isNative: boolean;
+  confidence: number; // 0-1, detection confidence
+  methods: string[]; // Detection methods used
   os?: {
     name: DesktopOSType | MobileOSType;
     version?: string;
@@ -92,6 +118,8 @@ export interface PlatformDetectionResult {
     name: BrowserType;
     version?: string;
   };
+  device?: DeviceInfo;
+  localization?: LocalizationInfo;
 }
 
 /**
@@ -103,6 +131,8 @@ export interface FrameworkDetectionResult {
   isSSR: boolean;
   supportsWebComponents: boolean;
   supportsESM: boolean;
+  confidence: number; // 0-1, detection confidence
+  methods: string[]; // Detection methods used
 }
 
 /**
@@ -138,6 +168,8 @@ export interface DetectionResult {
   framework: FrameworkDetectionResult;
   capabilities: CapabilityDetectionResult;
   timestamp: number;
+  privacyMode?: boolean; // Whether privacy mode was used
+  clientHintsUsed?: boolean; // Whether User-Agent Client Hints was used
 }
 
 /**
@@ -161,6 +193,30 @@ export interface DetectionOptions {
    * @default true
    */
   capabilities?: boolean;
+
+  /**
+   * Use User-Agent Client Hints API when available (modern, privacy-friendly)
+   * @default true
+   */
+  useClientHints?: boolean;
+
+  /**
+   * Include device information (screen size, device type, etc.)
+   * @default false
+   */
+  deviceInfo?: boolean;
+
+  /**
+   * Include localization information (language, timezone, etc.)
+   * @default false
+   */
+  localization?: boolean;
+
+  /**
+   * Privacy mode - minimal detection, no User-Agent parsing
+   * @default false
+   */
+  privacyMode?: boolean;
 
   /**
    * Custom detection functions

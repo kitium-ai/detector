@@ -33,6 +33,7 @@ import {
   detectPlatformInfo,
 } from './detectors/platform';
 import { clearCache, getCached, setCached } from './utils/cache';
+import { LoggerFactory, LoggerType } from '@kitiumai/logger';
 
 // Export all types
 export type * from './types';
@@ -110,6 +111,50 @@ export {
 // Export cache utilities
 export { clearCache, getCached, setCached } from './utils/cache';
 
+// Export async detection
+export {
+  detectCapabilitiesAsync,
+  hasCameraAsync,
+  hasGeolocationAsync,
+  hasMicrophoneAsync,
+  hasNotificationAsync,
+} from './detectors/capabilities-async';
+export type { AsyncCapabilityResult } from './detectors/capabilities-async';
+
+// Export testing utilities
+export {
+  mockDetection,
+  clearMockDetection,
+  getMockDetection,
+  validateDetection,
+  compareDetections,
+  areDetectionsEqual,
+} from './utils/testing';
+export type { DetectionDiff } from './utils/testing';
+
+// Export Client Hints utilities
+export {
+  supportsClientHints,
+  getClientHintsLowEntropy,
+  getClientHintsHighEntropy,
+  getBrowserFromClientHints,
+} from './utils/client-hints';
+export type { ClientHintsData } from './utils/client-hints';
+
+// Export device utilities
+export { detectDeviceInfo } from './utils/device';
+
+// Export localization utilities
+export { detectLocalizationInfo } from './utils/localization';
+
+// Initialize logger for detector package
+const logger = LoggerFactory.create({
+  type: LoggerType.CONSOLE,
+  serviceName: '@kitiumai/detector',
+  includeTimestamp: true,
+  colors: true,
+});
+
 /**
  * Perform complete detection of platform, framework, and capabilities
  */
@@ -117,6 +162,10 @@ export function detect(options: DetectionOptions = {}): DetectionResult {
   const {
     cache = true,
     capabilities: detectCaps = true,
+    useClientHints = true,
+    deviceInfo = false,
+    localization = false,
+    privacyMode = false,
     custom,
   } = options;
 
@@ -128,8 +177,13 @@ export function detect(options: DetectionOptions = {}): DetectionResult {
     }
   }
 
-  // Detect platform
-  let platform = detectPlatformInfo();
+  // Detect platform with new options
+  let platform = detectPlatformInfo({
+    useClientHints,
+    deviceInfo,
+    localization,
+    privacyMode,
+  });
   if (custom?.platform) {
     platform = { ...platform, ...custom.platform() };
   }
@@ -165,11 +219,16 @@ export function detect(options: DetectionOptions = {}): DetectionResult {
         microphone: false,
       };
 
+  // Check if Client Hints was used
+  const clientHintsUsed = platform.methods.includes('client-hints');
+
   const result: DetectionResult = {
     platform,
     framework,
     capabilities: capabilitiesResult,
     timestamp: Date.now(),
+    privacyMode: privacyMode || undefined,
+    clientHintsUsed: clientHintsUsed || undefined,
   };
 
   // Cache result
@@ -184,9 +243,15 @@ export function detect(options: DetectionOptions = {}): DetectionResult {
  * Detect platform only
  */
 export function detectPlatform(options: DetectionOptions = {}): PlatformDetectionResult {
-  const { custom } = options;
+  const { custom, useClientHints, deviceInfo, localization, privacyMode } = options;
 
-  let platform = detectPlatformInfo();
+  let platform = detectPlatformInfo({
+    useClientHints: useClientHints ?? true,
+    deviceInfo: deviceInfo ?? false,
+    localization: localization ?? false,
+    privacyMode: privacyMode ?? false,
+  });
+  
   if (custom?.platform) {
     platform = { ...platform, ...custom.platform() };
   }
@@ -254,15 +319,14 @@ export function getSummary(result?: DetectionResult): string {
 }
 
 /**
- * Log detection result to console
+ * Log detection result using logger
  */
 export function debug(result?: DetectionResult): void {
   const detection = result || detect();
 
-  console.group('🔍 Kitium Detector');
-  console.log(getSummary(detection));
-  console.log('\nFull Result:', detection);
-  console.groupEnd();
+  logger.info('🔍 Kitium Detector');
+  logger.info(getSummary(detection));
+  logger.debug('Full Detection Result', { result: detection });
 }
 
 /**
@@ -270,4 +334,111 @@ export function debug(result?: DetectionResult): void {
  */
 export function reset(): void {
   clearCache();
+}
+
+/**
+ * Async detection with permission-based capabilities
+ */
+export async function detectAsync(
+  options: DetectionOptions = {}
+): Promise<DetectionResult> {
+  const {
+    cache = true,
+    capabilities: detectCaps = true,
+    useClientHints = true,
+    deviceInfo = false,
+    localization = false,
+    privacyMode = false,
+    custom,
+  } = options;
+
+  // Check cache first
+  if (cache) {
+    const cached = getCached();
+    if (cached) {
+      return cached;
+    }
+  }
+
+  // Detect platform with new options
+  let platform = detectPlatformInfo({
+    useClientHints,
+    deviceInfo,
+    localization,
+    privacyMode,
+  });
+  if (custom?.platform) {
+    platform = { ...platform, ...custom.platform() };
+  }
+
+  // Detect framework
+  let framework = detectFrameworkInfo();
+  if (custom?.framework) {
+    framework = { ...framework, ...custom.framework() };
+  }
+
+  // Detect capabilities (sync)
+  let capabilitiesResult: CapabilityDetectionResult;
+  
+  if (detectCaps) {
+    const syncCapabilities = detectCapabilities();
+    
+    // Enhance with async capabilities if available
+    try {
+      const { detectCapabilitiesAsync } = await import('./detectors/capabilities-async');
+      const asyncCapabilities = await detectCapabilitiesAsync();
+      
+      capabilitiesResult = {
+        ...syncCapabilities,
+        camera: asyncCapabilities.camera,
+        microphone: asyncCapabilities.microphone,
+        geolocation: asyncCapabilities.geolocation,
+        notification: asyncCapabilities.notification,
+      };
+    } catch {
+      // Async detection failed, use sync only
+      capabilitiesResult = syncCapabilities;
+    }
+  } else {
+    capabilitiesResult = {
+      webComponents: false,
+      shadowDOM: false,
+      customElements: false,
+      modules: false,
+      serviceWorker: false,
+      webWorker: false,
+      indexedDB: false,
+      localStorage: false,
+      sessionStorage: false,
+      websocket: false,
+      webgl: false,
+      webgl2: false,
+      canvas: false,
+      audio: false,
+      video: false,
+      geolocation: false,
+      notification: false,
+      camera: false,
+      microphone: false,
+    };
+  }
+
+  // Check if Client Hints was used
+  const clientHintsUsed = platform.methods.includes('client-hints');
+
+  const result: DetectionResult = {
+    platform,
+    framework,
+    capabilities: capabilitiesResult,
+    timestamp: Date.now(),
+    privacyMode: privacyMode || undefined,
+    clientHintsUsed: clientHintsUsed || undefined,
+  };
+
+  // Cache result
+  if (cache) {
+    setCached(result);
+  }
+
+  return result;
 }

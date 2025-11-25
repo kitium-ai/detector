@@ -16,5 +16,16 @@ export default defineConfig({
   treeshake: true,
   target: 'es2020',
   outDir: 'dist',
-  external: [],
+  external: [
+    // Exclude native Node.js modules and dependencies
+    '@kitiumai/logger',
+    '@kitiumai/config',
+    '@kitiumai/lint',
+    '@kitiumai/scripts',
+    '@kitiumai/types',
+    // Exclude native modules
+    /^snappy$/,
+    /\.node$/,
+  ],
+  noExternal: [],
 });

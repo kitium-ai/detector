@@ -372,13 +372,69 @@ export function detectFramework(): FrameworkType {
 }
 
 /**
- * Complete framework detection
+ * Complete framework detection with confidence scores
  */
 export function detectFrameworkInfo(): FrameworkDetectionResult {
+  const methods: string[] = [];
+  let confidence = 1.0;
+
   const framework = detectFramework();
   const version = getFrameworkVersion(framework);
   const wcSupport = supportsWebComponents();
   const esmSupport = supportsESM();
+
+  // Determine confidence based on detection method
+  if (isServerSide()) {
+    methods.push('server-side-detection');
+    confidence = 1.0; // Server-side is definitive
+  } else if (isReactNative()) {
+    methods.push('react-native-detection');
+    confidence = 1.0; // React Native is definitive
+  } else if (isFlutter()) {
+    methods.push('flutter-detection');
+    confidence = 0.9; // Flutter detection is reliable
+  } else if (isNextJS()) {
+    methods.push('nextjs-detection');
+    confidence = 0.95; // Next.js has clear markers
+  } else if (isRemix()) {
+    methods.push('remix-detection');
+    confidence = 0.95; // Remix has clear markers
+  } else if (isGatsby()) {
+    methods.push('gatsby-detection');
+    confidence = 0.95; // Gatsby has clear markers
+  } else if (isNuxt()) {
+    methods.push('nuxt-detection');
+    confidence = 0.95; // Nuxt has clear markers
+  } else if (isAngular()) {
+    methods.push('angular-detection');
+    confidence = 0.9; // Angular detection is reliable
+  } else if (isVue()) {
+    methods.push('vue-detection');
+    confidence = 0.85; // Vue detection can be less certain
+  } else if (isSvelte()) {
+    methods.push('svelte-detection');
+    confidence = 0.85; // Svelte detection can be less certain
+  } else if (isSolid()) {
+    methods.push('solid-detection');
+    confidence = 0.85; // Solid detection can be less certain
+  } else if (isLit()) {
+    methods.push('lit-detection');
+    confidence = 0.85; // Lit detection can be less certain
+  } else if (isPreact()) {
+    methods.push('preact-detection');
+    confidence = 0.8; // Preact detection can be less certain
+  } else if (isReact()) {
+    methods.push('react-detection');
+    confidence = 0.8; // React detection can be less certain (may be false positive)
+  } else {
+    methods.push('vanilla-detection');
+    confidence = 0.7; // Vanilla is default, least certain
+  }
+
+  // Lower confidence if version not detected
+  if (!version && framework !== 'web' && framework !== 'node') {
+    confidence *= 0.9;
+  }
 
   return {
     framework,
@@ -386,6 +442,8 @@ export function detectFrameworkInfo(): FrameworkDetectionResult {
     isSSR: isServerSide(),
     supportsWebComponents: wcSupport,
     supportsESM: esmSupport,
+    confidence,
+    methods,
   };
 }
 

@@ -1,16 +1,13 @@
+const config = require('@kitiumai/config/jest.config.base.cjs');
+
 module.exports = {
-  preset: 'ts-jest',
+  ...config,
   testEnvironment: 'jsdom',
+  testMatch: [
+    '**/__tests__/**/*.(spec|test).[tj]s?(x)',
+    '**/?(*.)+(spec|test).[tj]s?(x)',
+  ],
   roots: ['<rootDir>/src'],
-  testMatch: ['**/__tests__/**/*.ts', '**/?(*.)+(spec|test).ts'],
-  transform: {
-    '^.+\\.ts$': ['ts-jest', {
-      tsconfig: {
-        esModuleInterop: true,
-        allowSyntheticDefaultImports: true,
-      },
-    }],
-  },
   collectCoverageFrom: [
     'src/**/*.ts',
     '!src/**/*.test.ts',
@@ -25,6 +22,5 @@ module.exports = {
       statements: 80,
     },
   },
-  moduleFileExtensions: ['ts', 'js', 'json'],
   verbose: true,
 };
