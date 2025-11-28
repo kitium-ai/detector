@@ -33,6 +33,7 @@ Before creating bug reports, please check the existing issues to avoid duplicate
 When using @kitiumai/detector in an Electron application on macOS, `detectPlatform()` incorrectly returns 'web' instead of 'electron'.
 
 **Steps to Reproduce:**
+
 1. Create an Electron app
 2. Import and call `detectPlatform()`
 3. Observe the result
@@ -44,6 +45,7 @@ Should return `{ platform: 'electron', ... }`
 Returns `{ platform: 'web', ... }`
 
 **Environment:**
+
 - OS: macOS 14.0
 - Electron: 27.0.0
 - @kitiumai/detector: 1.0.0
@@ -61,7 +63,7 @@ Enhancement suggestions are tracked as GitHub issues. When creating an enhanceme
 
 **Example Enhancement:**
 
-```markdown
+````markdown
 **Title:** Add detection for Astro framework
 
 **Description:**
@@ -71,6 +73,7 @@ Add support for detecting the Astro framework in web applications.
 Astro is growing in popularity and users would benefit from automatic detection.
 
 **Proposed API:**
+
 ```typescript
 import { isAstro, detectFramework } from '@kitiumai/detector';
 
@@ -78,10 +81,12 @@ if (isAstro()) {
   console.log('Running in Astro');
 }
 ```
+````
 
 **Alternatives:**
 Users can currently detect Astro manually, but built-in support would be more convenient.
-```
+
+````
 
 ### Pull Requests
 
@@ -127,7 +132,7 @@ Describe the tests you ran and how to reproduce them
 - [ ] I have added tests that prove my fix is effective or that my feature works
 - [ ] New and existing unit tests pass locally with my changes
 - [ ] Any dependent changes have been merged and published
-```
+````
 
 ## Development Setup
 
@@ -142,22 +147,25 @@ Describe the tests you ran and how to reproduce them
 1. **Fork the repository** on GitHub at https://github.com/kitium-ai/detector
 
 2. **Clone your fork:**
+
    ```bash
    git clone https://github.com/YOUR_USERNAME/detector.git
    cd detector
    ```
 
-2. **Install dependencies:**
+3. **Install dependencies:**
+
    ```bash
    npm install
    ```
 
-3. **Run tests:**
+4. **Run tests:**
+
    ```bash
    npm test
    ```
 
-4. **Start development:**
+5. **Start development:**
    ```bash
    npm run build:watch
    ```
@@ -190,6 +198,7 @@ kitium-detector/
 - Use `unknown` instead of `any` when type is uncertain
 
 **Good Example:**
+
 ```typescript
 export function detectBrowser(): BrowserType {
   const userAgent = navigator.userAgent.toLowerCase();
@@ -201,8 +210,10 @@ export function detectBrowser(): BrowserType {
 ```
 
 **Bad Example:**
+
 ```typescript
-export function detectBrowser(): any { // Don't use 'any'
+export function detectBrowser(): any {
+  // Don't use 'any'
   let ua = navigator.userAgent; // Should be const
   // Missing type safety
 }
@@ -219,6 +230,7 @@ export function detectBrowser(): any { // Don't use 'any'
 - Maximum line length: 100 characters
 
 **Example:**
+
 ```typescript
 // Constants
 const MAX_CACHE_AGE = 5000;
@@ -246,6 +258,7 @@ export function detectPlatform(): PlatformDetectionResult {
 - Use `it` or `test` for individual test cases
 
 **Example:**
+
 ```typescript
 describe('Platform Detection', () => {
   describe('isBrowser', () => {
@@ -269,7 +282,8 @@ describe('Platform Detection', () => {
 - Document breaking changes in CHANGELOG.md
 
 **Example:**
-```typescript
+
+````typescript
 /**
  * Detect the current platform
  *
@@ -285,7 +299,7 @@ describe('Platform Detection', () => {
 export function detectPlatform(): PlatformDetectionResult {
   // Implementation
 }
-```
+````
 
 ### Commit Messages
 
@@ -300,6 +314,7 @@ Follow the [Conventional Commits](https://www.conventionalcommits.org/) specific
 - `chore:` - Maintenance tasks
 
 **Examples:**
+
 ```
 feat: add detection for Remix framework
 fix: correct Electron detection on Windows
@@ -318,6 +333,7 @@ chore: update dependencies
 - Profile performance-critical code
 
 **Example:**
+
 ```typescript
 // Good: Cached detection
 let cachedResult: DetectionResult | null = null;
@@ -357,17 +373,19 @@ When adding support for a new platform, framework, or capability:
 **Example - Adding Bun Runtime Detection:**
 
 1. Add type:
+
 ```typescript
 // src/types/index.ts
 export type RuntimeType =
   | 'browser'
   | 'node'
-  | 'bun'  // ← New
+  | 'bun' // ← New
   | 'deno'
   | 'worker';
 ```
 
 2. Implement detection:
+
 ```typescript
 // src/detectors/platform.ts
 export function isBun(): boolean {
@@ -376,6 +394,7 @@ export function isBun(): boolean {
 ```
 
 3. Add tests:
+
 ```typescript
 // src/detectors/platform.test.ts
 describe('isBun', () => {
@@ -411,6 +430,7 @@ Only maintainers can publish releases:
 ## Recognition
 
 Contributors will be recognized in:
+
 - GitHub contributors page
 - CHANGELOG.md for significant contributions
 - README.md for major features
@@ -418,6 +438,7 @@ Contributors will be recognized in:
 ## Questions?
 
 If you have questions about contributing, please:
+
 1. Check existing documentation
 2. Search closed issues
 3. Ask in GitHub Discussions

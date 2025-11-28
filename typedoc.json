@@ -1,10 +1,5 @@
 {
-  "extends": [
-    "@kitiumai/config/typedoc.config.base.cjs"
-  ],
+  "extends": ["@kitiumai/config/typedoc.config.base.cjs"],
   "out": "docs/api",
-  "exclude": [
-    "**/*.spec.ts",
-    "**/*.test.ts"
-  ]
+  "exclude": ["**/*.spec.ts", "**/*.test.ts"]
 }

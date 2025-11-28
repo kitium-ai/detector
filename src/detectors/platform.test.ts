@@ -67,7 +67,17 @@ describe('Platform Detection - Simple Tests', () => {
 
   it('detectBrowser should return a valid browser type', () => {
     const browser = detectBrowser();
-    const validBrowsers = ['edge', 'opera', 'chrome', 'firefox', 'safari', 'samsung', 'ie', 'chromium', 'unknown'];
+    const validBrowsers = [
+      'edge',
+      'opera',
+      'chrome',
+      'firefox',
+      'safari',
+      'samsung',
+      'ie',
+      'chromium',
+      'unknown',
+    ];
     expect(validBrowsers).toContain(browser);
   });
 
@@ -139,4 +149,3 @@ describe('Platform Detection - Simple Tests', () => {
     expect(typeof result.isNative).toBe('boolean');
   });
 });
-

@@ -3,14 +3,9 @@
  */
 
 import type { DetectionResult } from '../types';
-import { LoggerFactory, LoggerType } from '@kitiumai/logger';
+import { getLogger } from '@kitiumai/logger';
 
-const logger = LoggerFactory.create({
-  type: LoggerType.CONSOLE,
-  serviceName: '@kitiumai/detector:cache',
-  includeTimestamp: false,
-  colors: false,
-});
+const logger = getLogger('@kitiumai/detector:cache');
 
 const CACHE_KEY = '__kitium_detection_cache__';
 const MAX_CACHE_AGE = 1000 * 60 * 5; // 5 minutes

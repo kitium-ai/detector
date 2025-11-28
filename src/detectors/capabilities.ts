@@ -14,10 +14,7 @@ export function hasWebComponents(): boolean {
     return false;
   }
 
-  return !!(
-    window.customElements &&
-    typeof window.customElements.define === 'function'
-  );
+  return !!(window.customElements && typeof window.customElements.define === 'function');
 }
 
 /**
@@ -28,10 +25,7 @@ export function hasShadowDOM(): boolean {
     return false;
   }
 
-  return (
-    'attachShadow' in Element.prototype &&
-    'getRootNode' in Element.prototype
-  );
+  return 'attachShadow' in Element.prototype && 'getRootNode' in Element.prototype;
 }
 
 /**
@@ -143,8 +137,7 @@ export function hasWebGL(): boolean {
 
   try {
     const canvas = document.createElement('canvas');
-    const gl =
-      canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
     return !!gl;
   } catch {
     return false;
@@ -236,10 +229,7 @@ export function hasCamera(): boolean {
     return false;
   }
 
-  return !!(
-    navigator.mediaDevices &&
-    navigator.mediaDevices.getUserMedia
-  );
+  return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
 }
 
 /**

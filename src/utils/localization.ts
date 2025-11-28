@@ -21,7 +21,7 @@ export function detectLocalizationInfo(): LocalizationInfo {
 
   const language = navigator.language || 'en';
   const languages = Array.from(navigator.languages || [language]);
-  
+
   // Get timezone
   let timezone = 'UTC';
   try {
@@ -46,4 +46,3 @@ export function detectLocalizationInfo(): LocalizationInfo {
     locale,
   };
 }
-

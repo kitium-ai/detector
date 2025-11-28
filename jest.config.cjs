@@ -3,10 +3,7 @@ const config = require('@kitiumai/config/jest.config.base.cjs');
 module.exports = {
   ...config,
   testEnvironment: 'jsdom',
-  testMatch: [
-    '**/__tests__/**/*.(spec|test).[tj]s?(x)',
-    '**/?(*.)+(spec|test).[tj]s?(x)',
-  ],
+  testMatch: ['**/__tests__/**/*.(spec|test).[tj]s?(x)', '**/?(*.)+(spec|test).[tj]s?(x)'],
   roots: ['<rootDir>/src'],
   collectCoverageFrom: [
     'src/**/*.ts',

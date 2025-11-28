@@ -84,7 +84,7 @@ export async function getClientHintsHighEntropy(): Promise<ClientHintsData | nul
       model: highEntropyValues.model,
       uaFullVersion: highEntropyValues.uaFullVersion,
     };
-  } catch (error) {
+  } catch {
     // Permission denied or other error, fallback to low entropy
     return getClientHintsLowEntropy();
   }
@@ -95,7 +95,7 @@ export async function getClientHintsHighEntropy(): Promise<ClientHintsData | nul
  */
 export function brandToBrowserType(brand: string): string {
   const brandLower = brand.toLowerCase();
-  
+
   if (brandLower.includes('chrome')) {
     return 'chrome';
   }
@@ -111,7 +111,7 @@ export function brandToBrowserType(brand: string): string {
   if (brandLower.includes('opera')) {
     return 'opera';
   }
-  
+
   return 'unknown';
 }
 
@@ -127,9 +127,10 @@ export function getBrowserFromClientHints(clientHints: ClientHintsData | null): 
   }
 
   // Find the main browser brand (usually the first non-OS brand)
-  const mainBrand = clientHints.brands.find(
-    (brand) => !['Windows', 'macOS', 'Linux', 'Android', 'iOS'].includes(brand.brand)
-  ) || clientHints.brands[0];
+  const mainBrand =
+    clientHints.brands.find(
+      (brand) => !['Windows', 'macOS', 'Linux', 'Android', 'iOS'].includes(brand.brand)
+    ) || clientHints.brands[0];
 
   if (!mainBrand) {
     return null;
@@ -140,4 +141,3 @@ export function getBrowserFromClientHints(clientHints: ClientHintsData | null): 
     version: mainBrand.version || clientHints.uaFullVersion,
   };
 }
-

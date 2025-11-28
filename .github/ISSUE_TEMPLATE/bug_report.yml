@@ -1,7 +1,7 @@
 name: 🐛 Bug Report
 description: Report a bug or unexpected behavior
-title: "[Bug]: "
-labels: ["bug", "needs-triage"]
+title: '[Bug]: '
+labels: ['bug', 'needs-triage']
 body:
   - type: markdown
     attributes:
@@ -64,9 +64,9 @@ body:
   - type: input
     id: version
     attributes:
-      label: "@kitium/detector Version"
+      label: '@kitium/detector Version'
       description: What version of @kitium/detector are you using?
-      placeholder: "1.0.0"
+      placeholder: '1.0.0'
     validations:
       required: true
 
@@ -92,7 +92,7 @@ body:
     attributes:
       label: Operating System
       description: What OS are you using?
-      placeholder: "Windows 11, macOS 14, Ubuntu 22.04, etc."
+      placeholder: 'Windows 11, macOS 14, Ubuntu 22.04, etc.'
     validations:
       required: true
 
@@ -101,7 +101,7 @@ body:
     attributes:
       label: Browser (if applicable)
       description: What browser and version?
-      placeholder: "Chrome 120, Firefox 121, Safari 17, etc."
+      placeholder: 'Chrome 120, Firefox 121, Safari 17, etc.'
     validations:
       required: false
 
@@ -110,7 +110,7 @@ body:
     attributes:
       label: Node.js Version (if applicable)
       description: What version of Node.js?
-      placeholder: "20.11.0"
+      placeholder: '20.11.0'
     validations:
       required: false
 
@@ -119,7 +119,7 @@ body:
     attributes:
       label: Framework (if applicable)
       description: What framework are you using?
-      placeholder: "React 18.2.0, Vue 3.3.0, Angular 17.0.0, etc."
+      placeholder: 'React 18.2.0, Vue 3.3.0, Angular 17.0.0, etc.'
     validations:
       required: false
 

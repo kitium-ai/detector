@@ -53,7 +53,9 @@ describe('cache utility', () => {
 
   it('should handle errors gracefully in getCached', () => {
     Object.defineProperty(window, CACHE_KEY, {
-      get() { throw new Error('fail'); },
+      get() {
+        throw new Error('fail');
+      },
       configurable: true,
     });
     expect(getCached()).toBeNull();
@@ -62,7 +64,9 @@ describe('cache utility', () => {
 
   it('should handle errors gracefully in setCached', () => {
     Object.defineProperty(window, CACHE_KEY, {
-      set() { throw new Error('fail'); },
+      set() {
+        throw new Error('fail');
+      },
       configurable: true,
     });
     expect(() => setCached(mockData)).not.toThrow();
@@ -72,7 +76,9 @@ describe('cache utility', () => {
   it('should handle errors gracefully in clearCache', () => {
     Object.defineProperty(window, CACHE_KEY, {
       configurable: true,
-      get() { throw new Error('fail'); },
+      get() {
+        throw new Error('fail');
+      },
     });
     expect(() => clearCache()).not.toThrow();
     delete (window as any)[CACHE_KEY];

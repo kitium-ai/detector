@@ -37,6 +37,7 @@ The package supports the modern **User-Agent Client Hints API**, which is more p
 - ✅ Less fingerprinting potential
 
 **Usage**:
+
 ```typescript
 import { detect } from '@kitiumai/detector';
 
@@ -58,6 +59,7 @@ const result = detect({ privacyMode: true });
 ```
 
 **Privacy Mode**:
+
 - ✅ No User-Agent string parsing
 - ✅ No detailed browser/OS detection
 - ✅ Only basic platform detection (browser vs. node)
@@ -165,6 +167,7 @@ If you collect detection data:
 ### Other Regulations
 
 Consult with legal counsel to ensure compliance with:
+
 - PIPEDA (Canada)
 - LGPD (Brazil)
 - Other applicable privacy laws
@@ -243,4 +246,3 @@ If you have privacy concerns or questions:
 This privacy document is updated as the package evolves. Check back regularly for updates.
 
 **Last Updated**: 2025-01-XX
-

@@ -37,11 +37,13 @@ Related to #
 <!-- Describe the tests you ran to verify your changes -->
 
 ### Test Environment
+
 - OS: [e.g., Windows 11, macOS 14, Ubuntu 22.04]
 - Node.js version: [e.g., 20.11.0]
 - Browser (if applicable): [e.g., Chrome 120, Firefox 121]
 
 ### Tests Performed
+
 - [ ] Unit tests pass locally
 - [ ] New tests added for new features
 - [ ] Integration tests pass
@@ -49,6 +51,7 @@ Related to #
 - [ ] Tested in multiple browsers/environments
 
 ### Test Commands
+
 ```bash
 npm test
 npm run test:coverage
@@ -80,16 +83,19 @@ npm run lint
 <!-- If this PR contains breaking changes, describe them here -->
 
 **Before:**
+
 ```typescript
 // Old API
 ```
 
 **After:**
+
 ```typescript
 // New API
 ```
 
 **Migration Guide:**
+
 <!-- Provide migration instructions for users -->
 
 ## Screenshots/Recordings

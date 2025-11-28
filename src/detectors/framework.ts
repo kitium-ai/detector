@@ -39,9 +39,7 @@ export function isReact(): boolean {
     document.querySelector('[data-reactid]') || // React 15
     document.querySelector('#root.__react_root') || // React 18
     Array.from(document.querySelectorAll('*')).some((el) =>
-      Object.keys(el).some(
-        (key) => key.startsWith('__react') || key.startsWith('_react')
-      )
+      Object.keys(el).some((key) => key.startsWith('__react') || key.startsWith('_react'))
     )
   );
 }
@@ -84,10 +82,7 @@ export function isGatsby(): boolean {
     return false;
   }
 
-  return !!(
-    (window as any).___gatsby ||
-    document.querySelector('#___gatsby')
-  );
+  return !!((window as any).___gatsby || document.querySelector('#___gatsby'));
 }
 
 /**
@@ -138,11 +133,7 @@ export function isNuxt(): boolean {
     return false;
   }
 
-  return !!(
-    (window as any).__NUXT__ ||
-    (window as any).$nuxt ||
-    document.querySelector('#__nuxt')
-  );
+  return !!((window as any).__NUXT__ || (window as any).$nuxt || document.querySelector('#__nuxt'));
 }
 
 /**
@@ -186,10 +177,7 @@ export function isPreact(): boolean {
     return false;
   }
 
-  return !!(
-    (window as any).preact ||
-    (window as any).h?.name === 'h'
-  );
+  return !!((window as any).preact || (window as any).h?.name === 'h');
 }
 
 /**
@@ -202,9 +190,7 @@ export function isLit(): boolean {
 
   return !!(
     (window as any).LitElement ||
-    Array.from(document.querySelectorAll('*')).some(
-      (el) => el.constructor.name.includes('Lit')
-    )
+    Array.from(document.querySelectorAll('*')).some((el) => el.constructor.name.includes('Lit'))
   );
 }
 
@@ -273,10 +259,7 @@ export function getVueVersion(): string | undefined {
     return undefined;
   }
 
-  return (
-    (window as any).Vue?.version ||
-    (window as any).__VUE_DEVTOOLS_GLOBAL_HOOK__?.Vue?.version
-  );
+  return (window as any).Vue?.version || (window as any).__VUE_DEVTOOLS_GLOBAL_HOOK__?.Vue?.version;
 }
 
 /**
@@ -470,10 +453,7 @@ export function shouldUseWebComponents(): boolean {
 export function shouldUseReactWrapper(): boolean {
   const framework = detectFramework();
   return (
-    framework === 'react' ||
-    framework === 'next' ||
-    framework === 'gatsby' ||
-    framework === 'remix'
+    framework === 'react' || framework === 'next' || framework === 'gatsby' || framework === 'remix'
   );
 }
 

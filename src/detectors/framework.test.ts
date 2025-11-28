@@ -203,7 +203,6 @@ describe('Framework Detection', () => {
     });
   });
 
-
   describe('getReactVersion', () => {
     it('should return undefined when React is not present', () => {
       expect(getReactVersion()).toBeUndefined();

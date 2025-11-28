@@ -26,15 +26,9 @@ import type {
   PlatformDetectionResult,
 } from './types';
 import { detectCapabilities } from './detectors/capabilities';
-import {
-  detectFrameworkInfo,
-} from './detectors/framework';
-import {
-  detectPlatformInfo,
-} from './detectors/platform';
+import { detectFrameworkInfo } from './detectors/framework';
+import { detectPlatformInfo } from './detectors/platform';
 import { clearCache, getCached, setCached } from './utils/cache';
-import { LoggerFactory, LoggerType } from '@kitiumai/logger';
-
 // Export all types
 export type * from './types';
 
@@ -147,13 +141,7 @@ export { detectDeviceInfo } from './utils/device';
 // Export localization utilities
 export { detectLocalizationInfo } from './utils/localization';
 
-// Initialize logger for detector package
-const logger = LoggerFactory.create({
-  type: LoggerType.CONSOLE,
-  serviceName: '@kitiumai/detector',
-  includeTimestamp: true,
-  colors: true,
-});
+// Logger is initialized in cache module for detection caching
 
 /**
  * Perform complete detection of platform, framework, and capabilities
@@ -251,7 +239,7 @@ export function detectPlatform(options: DetectionOptions = {}): PlatformDetectio
     localization: localization ?? false,
     privacyMode: privacyMode ?? false,
   });
-  
+
   if (custom?.platform) {
     platform = { ...platform, ...custom.platform() };
   }
@@ -305,9 +293,7 @@ export function getSummary(result?: DetectionResult): string {
   if (detection.platform.browser) {
     lines.push(
       `Browser: ${detection.platform.browser.name}${
-        detection.platform.browser.version
-          ? ` ${detection.platform.browser.version}`
-          : ''
+        detection.platform.browser.version ? ` ${detection.platform.browser.version}` : ''
       }`
     );
   }
@@ -339,9 +325,7 @@ export function reset(): void {
 /**
  * Async detection with permission-based capabilities
  */
-export async function detectAsync(
-  options: DetectionOptions = {}
-): Promise<DetectionResult> {
+export async function detectAsync(options: DetectionOptions = {}): Promise<DetectionResult> {
   const {
     cache = true,
     capabilities: detectCaps = true,
@@ -379,15 +363,15 @@ export async function detectAsync(
 
   // Detect capabilities (sync)
   let capabilitiesResult: CapabilityDetectionResult;
-  
+
   if (detectCaps) {
     const syncCapabilities = detectCapabilities();
-    
+
     // Enhance with async capabilities if available
     try {
       const { detectCapabilitiesAsync } = await import('./detectors/capabilities-async');
       const asyncCapabilities = await detectCapabilitiesAsync();
-      
+
       capabilitiesResult = {
         ...syncCapabilities,
         camera: asyncCapabilities.camera,

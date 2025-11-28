@@ -40,7 +40,7 @@ describe('detect function', () => {
   it('should allow custom platform detection', () => {
     const result = detect({
       custom: {
-        platform: () => ({ customProp: 'test' } as any),
+        platform: () => ({ customProp: 'test' }) as any,
       },
     });
     expect((result.platform as any).customProp).toBe('test');
@@ -49,7 +49,7 @@ describe('detect function', () => {
   it('should allow custom framework detection', () => {
     const result = detect({
       custom: {
-        framework: () => ({ customFramework: 'custom' } as any),
+        framework: () => ({ customFramework: 'custom' }) as any,
       },
     });
     expect((result.framework as any).customFramework).toBe('custom');
@@ -100,7 +100,7 @@ describe('detectPlatform function', () => {
   it('should allow custom platform detection', () => {
     const result = detectPlatform({
       custom: {
-        platform: () => ({ customProp: 'test' } as any),
+        platform: () => ({ customProp: 'test' }) as any,
       },
     });
     expect((result as any).customProp).toBe('test');

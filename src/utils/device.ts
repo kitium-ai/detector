@@ -79,7 +79,7 @@ function hasTouchSupport(): boolean {
   return (
     'ontouchstart' in window ||
     navigator.maxTouchPoints > 0 ||
-    !!(window as any).DocumentTouch && document instanceof (window as any).DocumentTouch
+    (!!(window as any).DocumentTouch && document instanceof (window as any).DocumentTouch)
   );
 }
 
@@ -119,4 +119,3 @@ export function detectDeviceInfo(): DeviceInfo {
     orientation: getOrientation(),
   };
 }
-

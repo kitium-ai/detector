@@ -23,13 +23,15 @@ export function isNode(): boolean {
   if (typeof window !== 'undefined' && typeof document !== 'undefined') {
     return false;
   }
-  if (typeof navigator !== 'undefined' && navigator.userAgent && navigator.userAgent.includes('jsdom')) {
+  if (
+    typeof navigator !== 'undefined' &&
+    navigator.userAgent &&
+    navigator.userAgent.includes('jsdom')
+  ) {
     return false;
   }
   return (
-    typeof process !== 'undefined' &&
-    process.versions != null &&
-    process.versions.node != null
+    typeof process !== 'undefined' && process.versions !== null && process.versions.node !== null
   );
 }
 
@@ -61,9 +63,7 @@ export function isElectron(): boolean {
 
   const userAgent = navigator.userAgent.toLowerCase();
   return (
-    userAgent.includes('electron') ||
-    !!(window as any).process?.type ||
-    !!(window as any).electron
+    userAgent.includes('electron') || !!(window as any).process?.type || !!(window as any).electron
   );
 }
 
@@ -104,8 +104,7 @@ export function isWebWorker(): boolean {
  */
 export function isServiceWorker(): boolean {
   return (
-    typeof self !== 'undefined' &&
-    (self as any).constructor?.name === 'ServiceWorkerGlobalScope'
+    typeof self !== 'undefined' && (self as any).constructor?.name === 'ServiceWorkerGlobalScope'
   );
 }
 
@@ -186,10 +185,8 @@ export function isMobile(): boolean {
 
   const userAgent = navigator.userAgent.toLowerCase();
   return (
-    /mobile|android|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(
-      userAgent
-    ) ||
-    (navigator as any).platform === 'MacIntel' && navigator.maxTouchPoints > 1
+    /mobile|android|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent) ||
+    ((navigator as any).platform === 'MacIntel' && navigator.maxTouchPoints > 1)
   );
 }
 
@@ -235,7 +232,8 @@ export function detectDesktopOS(): DesktopOSType {
   }
 
   const userAgent = navigator.userAgent.toLowerCase();
-  const platform = (navigator as any).userAgentData?.platform?.toLowerCase() || navigator.platform.toLowerCase();
+  const platform =
+    (navigator as any).userAgentData?.platform?.toLowerCase() || navigator.platform.toLowerCase();
 
   if (platform.includes('win')) {
     return 'windows';

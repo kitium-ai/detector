@@ -53,7 +53,11 @@ export function validateDetection(result: DetectionResult): {
     if (!result.platform.runtime) {
       errors.push('Runtime type is missing');
     }
-    if (typeof result.platform.confidence !== 'number' || result.platform.confidence < 0 || result.platform.confidence > 1) {
+    if (
+      typeof result.platform.confidence !== 'number' ||
+      result.platform.confidence < 0 ||
+      result.platform.confidence > 1
+    ) {
       errors.push('Platform confidence must be between 0 and 1');
     }
     if (!Array.isArray(result.platform.methods)) {
@@ -68,7 +72,11 @@ export function validateDetection(result: DetectionResult): {
     if (!result.framework.framework) {
       errors.push('Framework type is missing');
     }
-    if (typeof result.framework.confidence !== 'number' || result.framework.confidence < 0 || result.framework.confidence > 1) {
+    if (
+      typeof result.framework.confidence !== 'number' ||
+      result.framework.confidence < 0 ||
+      result.framework.confidence > 1
+    ) {
       errors.push('Framework confidence must be between 0 and 1');
     }
     if (!Array.isArray(result.framework.methods)) {
@@ -144,10 +152,7 @@ export interface DetectionDiff {
   };
 }
 
-export function compareDetections(
-  a: DetectionResult,
-  b: DetectionResult
-): DetectionDiff {
+export function compareDetections(a: DetectionResult, b: DetectionResult): DetectionDiff {
   const diff: DetectionDiff = {};
 
   // Compare platform
@@ -156,10 +161,9 @@ export function compareDetections(
       changed: {},
     };
 
-    const platformKeys = new Set([
-      ...Object.keys(a.platform),
-      ...Object.keys(b.platform),
-    ] as Array<keyof PlatformDetectionResult>);
+    const platformKeys = new Set([...Object.keys(a.platform), ...Object.keys(b.platform)] as Array<
+      keyof PlatformDetectionResult
+    >);
 
     for (const key of platformKeys) {
       const aVal = a.platform[key];
@@ -255,4 +259,3 @@ export function areDetectionsEqual(
 
   return JSON.stringify(a) === JSON.stringify(b);
 }
-

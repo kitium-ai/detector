@@ -409,5 +409,4 @@ describe('capabilities module', () => {
       expect(capabilities.hasMicrophone()).toBe(false);
     });
   });
-
 });
