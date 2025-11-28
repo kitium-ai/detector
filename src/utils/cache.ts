@@ -5,7 +5,7 @@
 import type { CacheAdapter, DetectionResult } from '../types';
 import { getLogger } from '@kitiumai/logger';
 
-const logger = getLogger('@kitiumai/detector:cache');
+const logger = getLogger();
 
 const CACHE_KEY = '__kitium_detection_cache__';
 const DEFAULT_TTL = 1000 * 60 * 5; // 5 minutes

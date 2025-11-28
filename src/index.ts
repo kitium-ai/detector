@@ -32,10 +32,13 @@ import type {
   PlatformDetectionResult,
   PrivacyModeSetting,
 } from './types';
+import { getLogger } from '@kitiumai/logger';
 import { detectCapabilities } from './detectors/capabilities';
 import { detectFrameworkInfo } from './detectors/framework';
 import { detectPlatformInfo } from './detectors/platform';
 import { clearCache, configureCache, getCached, setCached } from './utils/cache';
+
+const logger = getLogger();
 // Export all types
 export type * from './types';
 
@@ -265,7 +268,8 @@ export function detect(options: DetectionOptions = {}): DetectionResult {
     capabilities: mergedCapabilities,
     timestamp: Date.now(),
     privacyMode: privacyMode || undefined,
-    clientHintsUsed: clientHintsUsed || platform.methods.includes('client-hints-injected') || undefined,
+    clientHintsUsed:
+      clientHintsUsed || platform.methods.includes('client-hints-injected') || undefined,
     audit,
   };
 
@@ -514,7 +518,8 @@ export async function detectAsync(options: DetectionOptions = {}): Promise<Detec
     capabilities: mergedCapabilities,
     timestamp: Date.now(),
     privacyMode: privacyMode || undefined,
-    clientHintsUsed: clientHintsUsed || platform.methods.includes('client-hints-injected') || undefined,
+    clientHintsUsed:
+      clientHintsUsed || platform.methods.includes('client-hints-injected') || undefined,
     audit,
   };
 
@@ -538,14 +543,22 @@ function resolveClientHints(
   runtime?: boolean,
   presetDefault?: boolean
 ): boolean {
-  if (strategy === 'off') return false;
-  if (strategy === 'force') return true;
+  if (strategy === 'off') {
+    return false;
+  }
+  if (strategy === 'force') {
+    return true;
+  }
   return runtime ?? presetDefault ?? true;
 }
 
 function privacyFlag(mode: PrivacyModeSetting, runtime?: boolean): boolean {
-  if (mode === 'strict') return true;
-  if (runtime !== undefined) return runtime;
+  if (mode === 'strict') {
+    return true;
+  }
+  if (runtime !== undefined) {
+    return runtime;
+  }
   return mode === 'balanced' ? false : false;
 }
 
@@ -554,7 +567,9 @@ function withPlugins(
   plugins: DetectorConfig['plugins'],
   context: DetectorEvent
 ): DetectionResult {
-  if (!plugins?.length) return result;
+  if (!plugins?.length) {
+    return result;
+  }
 
   return plugins.reduce((acc, plugin) => {
     const next = plugin.apply(acc, context);
@@ -611,7 +626,9 @@ export function createDetector(config: DetectorConfig = {}): DetectorClient {
     return mergedOptions;
   };
 
-  const runSyncDetection = (options: Partial<DetectionOptions> & { correlationId?: string } = {}): DetectionResult => {
+  const runSyncDetection = (
+    options: Partial<DetectionOptions> & { correlationId?: string } = {}
+  ): DetectionResult => {
     const correlationId =
       options.correlationId || `det-${Date.now()}-${Math.random().toString(16).slice(2)}`;
     const mergedOptions = buildOptions(options);
@@ -632,7 +649,10 @@ export function createDetector(config: DetectorConfig = {}): DetectorClient {
           ...result,
           preset,
           correlationId,
-          audit: [...(result.audit || []), { step: 'client', timestamp: Date.now(), detail: preset }],
+          audit: [
+            ...(result.audit || []),
+            { step: 'client', timestamp: Date.now(), detail: preset },
+          ],
         },
         config.plugins,
         event
@@ -679,7 +699,10 @@ export function createDetector(config: DetectorConfig = {}): DetectorClient {
           ...result,
           preset,
           correlationId,
-          audit: [...(result.audit || []), { step: 'client', timestamp: Date.now(), detail: preset }],
+          audit: [
+            ...(result.audit || []),
+            { step: 'client', timestamp: Date.now(), detail: preset },
+          ],
         },
         config.plugins,
         event
