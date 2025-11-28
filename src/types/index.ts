@@ -3,6 +3,8 @@
  * Universal platform and framework detection for JavaScript/TypeScript applications
  */
 
+import type { ClientHintsData } from '../utils/client-hints';
+
 /**
  * Platform types supported by the detector
  */
@@ -161,6 +163,15 @@ export interface CapabilityDetectionResult {
 }
 
 /**
+ * Audit entry for deterministic, privacy-aware logging
+ */
+export interface AuditEntry {
+  step: string;
+  detail?: string;
+  timestamp: number;
+}
+
+/**
  * Complete detection result combining all detection types
  */
 export interface DetectionResult {
@@ -170,6 +181,9 @@ export interface DetectionResult {
   timestamp: number;
   privacyMode?: boolean; // Whether privacy mode was used
   clientHintsUsed?: boolean; // Whether User-Agent Client Hints was used
+  preset?: DetectorPreset;
+  correlationId?: string;
+  audit?: AuditEntry[];
 }
 
 /**
@@ -225,4 +239,106 @@ export interface DetectionOptions {
     platform?: () => Partial<PlatformDetectionResult>;
     framework?: () => Partial<FrameworkDetectionResult>;
   };
+
+  /**
+   * Provide sanitized Client Hints data (e.g., from an edge function)
+   */
+  clientHintsData?: ClientHintsData;
+
+  /**
+   * Override the user agent string used for parsing
+   */
+  userAgent?: string;
+
+  /**
+   * Override detected capabilities with pre-fetched values
+   */
+  capabilityOverrides?: Partial<CapabilityDetectionResult>;
+
+  /**
+   * Override platform information with pre-fetched values
+   */
+  platformOverrides?: Partial<PlatformDetectionResult>;
+
+  /**
+   * Override framework information with pre-fetched values
+   */
+  frameworkOverrides?: Partial<FrameworkDetectionResult>;
+}
+
+/**
+ * Privacy mode presets
+ */
+export type PrivacyModeSetting = 'off' | 'balanced' | 'strict';
+
+/**
+ * Client hints strategy
+ */
+export type ClientHintsStrategy = 'auto' | 'force' | 'off';
+
+/**
+ * Detector presets for simplified entrypoints
+ */
+export type DetectorPreset = 'web' | 'ssr' | 'native' | 'test';
+
+/**
+ * Runtime hooks for observability
+ */
+export interface DetectorHooks {
+  onDetectStart?: (payload: DetectorEvent) => void;
+  onDetectSuccess?: (payload: DetectorEvent & { result: DetectionResult }) => void;
+  onDetectError?: (payload: DetectorEvent & { error: unknown }) => void;
+}
+
+export interface DetectorEvent {
+  correlationId: string;
+  preset?: DetectorPreset;
+  privacyMode?: PrivacyModeSetting;
+  timestamp: number;
+}
+
+/**
+ * Cache adapter for enterprise deployments
+ */
+export interface CacheAdapter {
+  get(): DetectionResult | null;
+  set(data: DetectionResult, ttlMs?: number): void;
+  clear(): void;
+}
+
+/**
+ * Plugin contract for extending detection
+ */
+export interface DetectorPlugin {
+  name: string;
+  version: string;
+  apply: (result: DetectionResult, context: DetectorEvent) => DetectionResult;
+}
+
+/**
+ * Configuration for the simplified detector client
+ */
+export interface DetectorConfig {
+  preset?: DetectorPreset;
+  privacyMode?: PrivacyModeSetting;
+  clientHints?: ClientHintsStrategy;
+  cacheAdapter?: CacheAdapter;
+  cacheTtlMs?: number;
+  hooks?: DetectorHooks;
+  latencyBudgetMs?: number;
+  overrides?: {
+    platform?: Partial<PlatformDetectionResult>;
+    framework?: Partial<FrameworkDetectionResult>;
+    capabilities?: Partial<CapabilityDetectionResult>;
+  };
+  plugins?: DetectorPlugin[];
+}
+
+export interface DetectorClient {
+  detect: (options?: Partial<DetectionOptions> & { correlationId?: string }) => DetectionResult;
+  detectAsync: (
+    options?: Partial<DetectionOptions> & { correlationId?: string }
+  ) => Promise<DetectionResult>;
+  getSummary: (result?: DetectionResult) => string;
+  reset: () => void;
 }

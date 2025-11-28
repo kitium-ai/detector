@@ -17,6 +17,8 @@ Detect browsers, frameworks, platforms, and capabilities with **zero dependencie
 - **Fast** - Cached detection with minimal overhead
 - **Tree-Shakeable** - Import only what you need
 
+> Looking for an enterprise-focused review and roadmap? See the [enterprise readiness assessment](docs/enterprise-evaluation.md).
+
 ## Installation
 
 ```bash
@@ -32,6 +34,26 @@ pnpm add @kitiumai/detector
 ```
 
 ## Quick Start
+
+### Opinionated client (recommended)
+
+```typescript
+import { createDetector } from '@kitiumai/detector';
+
+const detector = createDetector({
+  preset: 'web',
+  privacyMode: 'balanced',
+  clientHints: 'auto',
+  hooks: {
+    onDetectStart: ({ correlationId }) => console.log('starting', correlationId),
+  },
+});
+
+const result = detector.detect();
+console.log(detector.getSummary(result));
+```
+
+### Lower-level call
 
 ```typescript
 import { detect } from '@kitiumai/detector';
@@ -155,6 +177,85 @@ console.log(framework.supportsWebComponents); // Web Components support
 console.log(framework.supportsESM); // ES Modules support
 ```
 
+### Enterprise presets and overrides
+
+```typescript
+import { createDetector } from '@kitiumai/detector';
+
+// Privacy-by-default SSR preset with deterministic capabilities
+const detector = createDetector({
+  preset: 'ssr',
+  privacyMode: 'strict',
+  clientHints: 'off',
+  overrides: {
+    // Inject sanitized platform info from your edge/worker
+    platform: {
+      platform: 'web',
+      runtime: 'node',
+      isServer: true,
+      methods: ['edge-header'],
+    },
+  },
+  hooks: {
+    onDetectSuccess: ({ result }) => {
+      // Emit structured observability events
+      console.log(result.correlationId, result.audit);
+    },
+  },
+});
+
+const detection = await detector.detectAsync({
+  // Supply Client Hints captured server-side if desired
+  clientHintsData: {
+    brands: [{ brand: 'Chromium', version: '122' }],
+    platform: 'Windows',
+  },
+});
+```
+
+### Cache adapter, latency budgets, and plugins
+
+```typescript
+import { createDetector } from '@kitiumai/detector';
+
+class MapCache {
+  store = new Map();
+  get() {
+    return this.store.get('det') || null;
+  }
+  set(data) {
+    this.store.set('det', data);
+  }
+  clear() {
+    this.store.clear();
+  }
+}
+
+const detector = createDetector({
+  preset: 'web',
+  cacheAdapter: new MapCache(),
+  cacheTtlMs: 60_000,
+  latencyBudgetMs: 200,
+  plugins: [
+    {
+      name: 'mask-browser-version',
+      version: '1.0.0',
+      apply: (result) => ({
+        ...result,
+        platform: {
+          ...result.platform,
+          browser: result.platform.browser
+            ? { ...result.platform.browser, version: undefined }
+            : undefined,
+        },
+      }),
+    },
+  ],
+});
+
+const detection = await detector.detectAsync();
+```
+
 ### Capabilities Detection
 
 ```typescript
@@ -196,6 +297,14 @@ console.log(caps.notification); // Notification
 console.log(caps.camera); // Camera
 console.log(caps.microphone); // Microphone
 ```
+
+## API reference (high level)
+
+- `createDetector(options)`: returns a client with `detect`, `detectAsync`, `getSummary`, and `reset` methods using presets (`web`, `ssr`, `native`, `test`).
+- `detect`, `detectAsync`: one-off detection functions with granular options.
+- `configureCache`: provide a custom cache adapter and TTL for cross-runtime reuse.
+- Observability hooks: `onDetectStart`, `onDetectSuccess`, `onDetectError` emit structured events.
+- Overrides: inject `clientHintsData`, `userAgent`, and partial platform/framework/capability results for deterministic SSR or privacy-first flows.
 
 ### Debugging
 
