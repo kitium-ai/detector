@@ -11,6 +11,7 @@ import type {
   PlatformType,
   RuntimeType,
 } from '../types';
+import type { ClientHintsData } from '../utils/client-hints';
 import { getClientHintsLowEntropy, getBrowserFromClientHints } from '../utils/client-hints';
 import { detectDeviceInfo } from '../utils/device';
 import { detectLocalizationInfo } from '../utils/localization';
@@ -111,12 +112,12 @@ export function isServiceWorker(): boolean {
 /**
  * Detect browser type
  */
-export function detectBrowser(): BrowserType {
+export function detectBrowser(userAgentOverride?: string): BrowserType {
   if (!isBrowser()) {
     return 'unknown';
   }
 
-  const userAgent = navigator.userAgent.toLowerCase();
+  const userAgent = (userAgentOverride || navigator.userAgent).toLowerCase();
 
   if (userAgent.includes('edg/')) {
     return 'edge';
@@ -149,13 +150,13 @@ export function detectBrowser(): BrowserType {
 /**
  * Get browser version
  */
-export function getBrowserVersion(): string | undefined {
+export function getBrowserVersion(userAgentOverride?: string): string | undefined {
   if (!isBrowser()) {
     return undefined;
   }
 
-  const userAgent = navigator.userAgent;
-  const browser = detectBrowser();
+  const userAgent = userAgentOverride || navigator.userAgent;
+  const browser = detectBrowser(userAgentOverride);
 
   const patterns: Record<BrowserType, RegExp> = {
     chrome: /Chrome\/(\d+\.\d+)/,
@@ -368,6 +369,9 @@ export function detectPlatformInfo(
     deviceInfo?: boolean;
     localization?: boolean;
     privacyMode?: boolean;
+    clientHintsData?: ClientHintsData;
+    userAgent?: string;
+    platformOverrides?: Partial<PlatformDetectionResult>;
   } = {}
 ): PlatformDetectionResult {
   const {
@@ -375,6 +379,9 @@ export function detectPlatformInfo(
     deviceInfo = false,
     localization = false,
     privacyMode = false,
+    clientHintsData,
+    userAgent,
+    platformOverrides,
   } = options;
 
   const methods: string[] = [];
@@ -395,7 +402,7 @@ export function detectPlatformInfo(
   if (browser && !privacyMode) {
     if (useClientHints) {
       try {
-        const clientHints = getClientHintsLowEntropy();
+        const clientHints = clientHintsData || getClientHintsLowEntropy();
         if (clientHints) {
           const hintsBrowser = getBrowserFromClientHints(clientHints);
           if (hintsBrowser) {
@@ -403,7 +410,7 @@ export function detectPlatformInfo(
               name: hintsBrowser.name as BrowserType,
               version: hintsBrowser.version,
             };
-            methods.push('client-hints');
+            methods.push(clientHintsData ? 'client-hints-injected' : 'client-hints');
             confidence = 0.95; // Client Hints is more reliable
           }
         }
@@ -415,8 +422,8 @@ export function detectPlatformInfo(
     // Fallback to User-Agent parsing if Client Hints not used
     if (!browserInfo) {
       browserInfo = {
-        name: detectBrowser(),
-        version: getBrowserVersion(),
+        name: detectBrowser(userAgent),
+        version: getBrowserVersion(userAgent),
       };
       methods.push('user-agent-parsing');
       confidence = 0.8; // User-Agent parsing is less reliable
@@ -474,6 +481,14 @@ export function detectPlatformInfo(
     } catch {
       // Localization detection failed
     }
+  }
+
+  if (platformOverrides) {
+    return {
+      ...result,
+      ...platformOverrides,
+      methods: Array.from(new Set([...result.methods, ...(platformOverrides.methods || [])])),
+    };
   }
 
   return result;
