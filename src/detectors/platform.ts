@@ -11,8 +11,11 @@ import type {
   PlatformType,
   RuntimeType,
 } from '../types';
-import type { ClientHintsData } from '../utils/client-hints';
-import { getClientHintsLowEntropy, getBrowserFromClientHints } from '../utils/client-hints';
+import {
+  type ClientHintsData,
+  getClientHintsLowEntropy,
+  getBrowserFromClientHints,
+} from '../utils/client-hints';
 import { detectDeviceInfo } from '../utils/device';
 import { detectLocalizationInfo } from '../utils/localization';
 

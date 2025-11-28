@@ -7,6 +7,8 @@ export default defineConfig(
     environment: 'jsdom', // For browser detection
     overrides: {
       test: {
+        globals: true,
+        setupFiles: ['./vitest.setup.ts'],
         coverage: {
           exclude: ['**/*.test.ts', '**/*.spec.ts', 'dist/**', 'node_modules/**', '**/index.ts'],
           thresholds: {

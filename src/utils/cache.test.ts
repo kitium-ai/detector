@@ -1,4 +1,4 @@
-import { getCached, setCached, clearCache } from './cache';
+import { getCached, setCached, clearCache, configureCache } from './cache';
 
 describe('cache utility', () => {
   const CACHE_KEY = '__kitium_detection_cache__';
@@ -15,10 +15,18 @@ describe('cache utility', () => {
     // Restore window state
     for (const key in window) {
       if (!(key in originalWindow)) {
-        delete (window as any)[key];
+        try {
+          delete (window as any)[key];
+        } catch {
+          // Ignore errors when deleting properties
+        }
       }
     }
-    Object.assign(window, originalWindow);
+    try {
+      Object.assign(window, originalWindow);
+    } catch {
+      // Ignore errors when restoring window
+    }
   });
 
   it('should return null if window is undefined', () => {
@@ -45,9 +53,18 @@ describe('cache utility', () => {
   });
 
   it('should expire cache after max age', () => {
+    // Use a no-op adapter to test window cache expiration
+    configureCache({
+      adapter: {
+        get: () => null,
+        set: () => {},
+        clear: () => {},
+      },
+    });
     setCached(mockData);
+    // Manually expire the window cache entry
     const entry = (window as any)[CACHE_KEY];
-    entry.timestamp = Date.now() - 1000 * 60 * 10; // 10 minutes ago
+    entry.expiresAt = Date.now() - 1000; // Expired 1 second ago
     expect(getCached()).toBeNull();
   });
 

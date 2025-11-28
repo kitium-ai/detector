@@ -8,13 +8,14 @@
 - Hardened privacy and determinism: strict mode disables async probes, client hints, and permission prompts while producing an audit log of signals used.
 - Defined a plugin contract (name, version, `apply`) and lifecycle-friendly client hooks so teams can extend detection safely.
 
-
 ## Executive summary
+
 - `@kitiumai/detector` already delivers zero-dependency, TypeScript-first detection that spans browsers, Node.js, workers, React Native, Electron, and more, providing cached platform, framework, and capability results out of the box.【F:README.md†L1-L71】【F:src/index.ts†L149-L227】
 - The public API exports comprehensive granular helpers for platforms, frameworks, and capabilities, giving teams flexibility but also exposing a broad surface area to learn.【F:src/index.ts†L35-L227】
 - Caching and basic logging exist, but platform caching is browser-only and observability hooks are minimal, which limits enterprise-grade monitoring and runtime governance.【F:src/utils/cache.ts†L21-L65】【F:src/index.ts†L310-L323】
 
 ## Gaps compared to big-tech product standards
+
 1. **Productized developer experience**
    - The library exposes dozens of functions without a cohesive top-level experience (e.g., a single client with presets for web, SSR, mobile, or testing). This contrasts with big-tech SDKs that ship opinionated entrypoints and minimal configuration for common stacks.【F:src/index.ts†L35-L268】
    - Options such as `custom` callbacks, `useClientHints`, and `capabilities` are powerful but undocumented in guardrails (e.g., when to use privacy mode, how to avoid expensive async feature checks), creating adoption friction.【F:src/index.ts†L149-L227】
@@ -32,6 +33,7 @@
    - There is no explicit lifecycle (init → detect → report → shutdown) or typed event stream, which is common in enterprise SDKs to support integrations with analytics, experimentation, and feature-delivery systems.
 
 ## Recommendations to reach enterprise readiness
+
 1. **Ship a simplified, opinionated API surface**
    - Introduce a `createDetector({ preset })` factory that returns a minimal client (`detect`, `getSummary`, `reset`) tuned for `web`, `ssr`, `native`, and `test` presets, while keeping granular exports for advanced users.
    - Provide configuration schemas with defaults for privacy (e.g., `privacyMode: 'strict' | 'balanced' | 'off'`), capability probes (`latencyBudgetMs`), and client hints usage (explicit opt-in/out) to give predictable behavior.
