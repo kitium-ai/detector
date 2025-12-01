@@ -6,9 +6,17 @@ export default defineConfig(
     preset: 'library',
     environment: 'jsdom', // For browser detection
     overrides: {
+      resolve: {
+        alias: {
+          '@kitiumai/error': '@kitiumai/error',
+        },
+      },
       test: {
         globals: true,
         setupFiles: ['./vitest.setup.ts'],
+        deps: {
+          inline: ['@kitiumai/error', '@kitiumai/logger'],
+        },
         coverage: {
           exclude: ['**/*.test.ts', '**/*.spec.ts', 'dist/**', 'node_modules/**', '**/index.ts'],
           thresholds: {

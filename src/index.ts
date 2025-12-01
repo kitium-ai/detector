@@ -31,16 +31,23 @@ import type {
   FrameworkDetectionResult,
   PlatformDetectionResult,
   PrivacyModeSetting,
-} from './types';
+} from './types/index.js';
 import { getLogger } from '@kitiumai/logger';
-import { detectCapabilities } from './detectors/capabilities';
-import { detectFrameworkInfo } from './detectors/framework';
-import { detectPlatformInfo } from './detectors/platform';
-import { clearCache, configureCache, getCached, setCached } from './utils/cache';
+import { compact, unique } from '@kitiumai/utils-ts';
+import { detectCapabilities } from './detectors/capabilities.js';
+import { detectFrameworkInfo } from './detectors/framework.js';
+import { detectPlatformInfo } from './detectors/platform.js';
+import { clearCache, configureCache, getCached, setCached } from './utils/cache.js';
+import {
+  createDetectionTimeoutError,
+  createPluginExecutionError,
+  extractErrorMetadata,
+} from './utils/errors.js';
 
 const logger = getLogger();
+
 // Export all types
-export type * from './types';
+export type * from './types/index.js';
 
 // Export platform detection functions
 export {
@@ -157,6 +164,8 @@ export { detectLocalizationInfo } from './utils/localization';
  * Perform complete detection of platform, framework, and capabilities
  */
 export function detect(options: DetectionOptions = {}): DetectionResult {
+  const startTime = Date.now();
+
   const {
     cache = true,
     capabilities: detectCaps = true,
@@ -177,108 +186,126 @@ export function detect(options: DetectionOptions = {}): DetectionResult {
     audit.push({ step: 'privacy-mode', timestamp: Date.now(), detail: 'deterministic path' });
   }
 
-  // Check cache first
-  if (cache) {
-    const cached = getCached();
-    if (cached) {
-      audit.push({ step: 'cache-hit', timestamp: Date.now(), detail: 'in-memory' });
-      return cached;
+  try {
+    // Check cache first
+    if (cache) {
+      const cached = getCached();
+      if (cached) {
+        audit.push({ step: 'cache-hit', timestamp: Date.now(), detail: 'in-memory' });
+        const duration = Date.now() - startTime;
+        logger.debug('Detection completed (cached)', { duration });
+        return cached;
+      }
     }
-  }
 
-  // Detect platform with new options
-  let platform = detectPlatformInfo({
-    useClientHints,
-    deviceInfo,
-    localization,
-    privacyMode,
-    clientHintsData,
-    userAgent,
-    platformOverrides,
-  });
-  const customPlatform = custom?.platform?.();
-  if (customPlatform) {
-    platform = {
-      ...platform,
-      ...customPlatform,
-      methods: Array.from(new Set([...platform.methods, ...(customPlatform.methods || [])])),
-    };
-  }
-  audit.push({
-    step: 'platform-detection',
-    timestamp: Date.now(),
-    detail: platform.methods.join(','),
-  });
-
-  // Detect framework
-  let framework = detectFrameworkInfo();
-  const customFramework = custom?.framework?.();
-  if (customFramework) {
-    framework = { ...framework, ...customFramework };
-  }
-  if (frameworkOverrides) {
-    framework = { ...framework, ...frameworkOverrides };
-  }
-  audit.push({
-    step: 'framework-detection',
-    timestamp: Date.now(),
-    detail: framework.methods.join(','),
-  });
-
-  // Detect capabilities
-  const capabilitiesResult: CapabilityDetectionResult = detectCaps
-    ? detectCapabilities()
-    : {
-        webComponents: false,
-        shadowDOM: false,
-        customElements: false,
-        modules: false,
-        serviceWorker: false,
-        webWorker: false,
-        indexedDB: false,
-        localStorage: false,
-        sessionStorage: false,
-        websocket: false,
-        webgl: false,
-        webgl2: false,
-        canvas: false,
-        audio: false,
-        video: false,
-        geolocation: false,
-        notification: false,
-        camera: false,
-        microphone: false,
+    // Detect platform with new options
+    let platform = detectPlatformInfo({
+      useClientHints,
+      deviceInfo,
+      localization,
+      privacyMode,
+      clientHintsData,
+      userAgent,
+      platformOverrides,
+    });
+    const customPlatform = custom?.platform?.();
+    if (customPlatform) {
+      platform = {
+        ...platform,
+        ...customPlatform,
+        methods: Array.from(new Set([...platform.methods, ...(customPlatform.methods || [])])),
       };
+    }
+    audit.push({
+      step: 'platform-detection',
+      timestamp: Date.now(),
+      detail: platform.methods.join(','),
+    });
 
-  const mergedCapabilities = capabilityOverrides
-    ? { ...capabilitiesResult, ...capabilityOverrides }
-    : capabilitiesResult;
-  audit.push({
-    step: 'capabilities-detection',
-    timestamp: Date.now(),
-    detail: detectCaps ? 'sync' : 'disabled',
-  });
+    // Detect framework
+    let framework = detectFrameworkInfo();
+    const customFramework = custom?.framework?.();
+    if (customFramework) {
+      framework = { ...framework, ...customFramework };
+    }
+    if (frameworkOverrides) {
+      framework = { ...framework, ...frameworkOverrides };
+    }
+    audit.push({
+      step: 'framework-detection',
+      timestamp: Date.now(),
+      detail: framework.methods.join(','),
+    });
 
-  // Check if Client Hints was used
-  const clientHintsUsed = platform.methods.includes('client-hints');
+    // Detect capabilities
+    const capabilitiesResult: CapabilityDetectionResult = detectCaps
+      ? detectCapabilities()
+      : {
+          webComponents: false,
+          shadowDOM: false,
+          customElements: false,
+          modules: false,
+          serviceWorker: false,
+          webWorker: false,
+          indexedDB: false,
+          localStorage: false,
+          sessionStorage: false,
+          websocket: false,
+          webgl: false,
+          webgl2: false,
+          canvas: false,
+          audio: false,
+          video: false,
+          geolocation: false,
+          notification: false,
+          camera: false,
+          microphone: false,
+        };
 
-  const result: DetectionResult = {
-    platform,
-    framework,
-    capabilities: mergedCapabilities,
-    timestamp: Date.now(),
-    privacyMode: privacyMode || undefined,
-    clientHintsUsed:
-      clientHintsUsed || platform.methods.includes('client-hints-injected') || undefined,
-    audit,
-  };
+    const mergedCapabilities = capabilityOverrides
+      ? { ...capabilitiesResult, ...capabilityOverrides }
+      : capabilitiesResult;
+    audit.push({
+      step: 'capabilities-detection',
+      timestamp: Date.now(),
+      detail: detectCaps ? 'sync' : 'disabled',
+    });
 
-  // Cache result
-  if (cache) {
-    setCached(result);
+    // Check if Client Hints was used
+    const clientHintsUsed = platform.methods.includes('client-hints');
+
+    const result: DetectionResult = {
+      platform,
+      framework,
+      capabilities: mergedCapabilities,
+      timestamp: Date.now(),
+      privacyMode: privacyMode || undefined,
+      clientHintsUsed:
+        clientHintsUsed || platform.methods.includes('client-hints-injected') || undefined,
+      audit,
+    };
+
+    // Cache result
+    if (cache) {
+      setCached(result);
+    }
+
+    const duration = Date.now() - startTime;
+    logger.debug('Detection completed', {
+      duration,
+      platform: result.platform.platform,
+      framework: result.framework.framework,
+      capabilities: detectCaps,
+    });
+
+    return result;
+  } catch (error) {
+    const duration = Date.now() - startTime;
+    const caughtError = error instanceof Error ? error : new Error(String(error));
+
+    logger.error('Detection failed', { duration, error: caughtError.message }, caughtError);
+    throw caughtError;
   }
-
-  return result;
 }
 
 /**
@@ -572,16 +599,48 @@ function withPlugins(
   }
 
   return plugins.reduce((acc, plugin) => {
-    const next = plugin.apply(acc, context);
-    const auditEntry: AuditEntry = {
-      step: 'plugin',
-      detail: `${plugin.name}@${plugin.version}`,
-      timestamp: Date.now(),
-    };
-    return {
-      ...next,
-      audit: [...(next.audit || []), auditEntry],
-    };
+    const startTime = Date.now();
+
+    try {
+      const next = plugin.apply(acc, context);
+      const duration = Date.now() - startTime;
+
+      logger.debug(`Plugin executed: ${plugin.name}@${plugin.version}`, { duration });
+
+      const auditEntry: AuditEntry = {
+        step: 'plugin',
+        detail: `${plugin.name}@${plugin.version}`,
+        timestamp: Date.now(),
+      };
+      return {
+        ...next,
+        audit: [...(next.audit || []), auditEntry],
+      };
+    } catch (error) {
+      const duration = Date.now() - startTime;
+      const pluginError = createPluginExecutionError(
+        plugin.name,
+        error instanceof Error ? error.message : String(error),
+        { duration, version: plugin.version }
+      );
+
+      const errorMetadata = extractErrorMetadata(pluginError);
+      logger.warn(`Plugin execution failed: ${plugin.name}@${plugin.version}`, {
+        ...errorMetadata,
+        duration,
+      });
+
+      // Continue with unmodified result on plugin error
+      const auditEntry: AuditEntry = {
+        step: 'plugin-error',
+        detail: `${plugin.name}@${plugin.version}: ${error instanceof Error ? error.message : String(error)}`,
+        timestamp: Date.now(),
+      };
+      return {
+        ...acc,
+        audit: [...(acc.audit || []), auditEntry],
+      };
+    }
   }, result);
 }
 
@@ -629,6 +688,7 @@ export function createDetector(config: DetectorConfig = {}): DetectorClient {
   const runSyncDetection = (
     options: Partial<DetectionOptions> & { correlationId?: string } = {}
   ): DetectionResult => {
+    const startTime = Date.now();
     const correlationId =
       options.correlationId || `det-${Date.now()}-${Math.random().toString(16).slice(2)}`;
     const mergedOptions = buildOptions(options);
@@ -644,6 +704,11 @@ export function createDetector(config: DetectorConfig = {}): DetectorClient {
 
     try {
       const result = detect(mergedOptions);
+      const duration = Date.now() - startTime;
+
+      // Clean and deduplicate audit methods using utility functions
+      const auditMethods = compact(unique([...(result.audit || []).map((a) => a.detail)]));
+
       const enriched = withPlugins(
         {
           ...result,
@@ -658,9 +723,25 @@ export function createDetector(config: DetectorConfig = {}): DetectorClient {
         event
       );
 
+      logger.debug('Sync detection completed', {
+        duration,
+        correlationId,
+        preset,
+        methods: auditMethods,
+      });
+
       hooks.onDetectSuccess?.({ ...event, result: enriched });
       return enriched;
     } catch (error) {
+      const duration = Date.now() - startTime;
+      const caughtError = error instanceof Error ? error : new Error(String(error));
+
+      logger.error('Sync detection failed', {
+        duration,
+        correlationId,
+        error: caughtError.message,
+      });
+
       hooks.onDetectError?.({ ...event, error });
       throw error;
     }
@@ -669,6 +750,7 @@ export function createDetector(config: DetectorConfig = {}): DetectorClient {
   const runAsyncDetection = async (
     options: Partial<DetectionOptions> & { correlationId?: string } = {}
   ): Promise<DetectionResult> => {
+    const startTime = Date.now();
     const correlationId =
       options.correlationId || `det-${Date.now()}-${Math.random().toString(16).slice(2)}`;
     const mergedOptions = buildOptions(options);
@@ -688,11 +770,34 @@ export function createDetector(config: DetectorConfig = {}): DetectorClient {
       const result = config.latencyBudgetMs
         ? await Promise.race<DetectionResult>([
             runner,
-            new Promise<DetectionResult>((resolve) =>
-              setTimeout(() => resolve(fallbackDetection(mergedOptions)), config.latencyBudgetMs)
-            ),
+            new Promise<DetectionResult>((resolve) => {
+              const timeoutHandle = setTimeout(() => {
+                const elapsed = Date.now() - startTime;
+                if (elapsed >= config.latencyBudgetMs!) {
+                  const timeoutError = createDetectionTimeoutError(
+                    'detectAsync',
+                    config.latencyBudgetMs!
+                  );
+                  const errorMetadata = extractErrorMetadata(timeoutError);
+                  logger.warn('Detection latency budget exceeded', {
+                    ...errorMetadata,
+                    elapsed,
+                    budget: config.latencyBudgetMs,
+                  });
+                }
+                resolve(fallbackDetection(mergedOptions));
+              }, config.latencyBudgetMs);
+
+              // Allow garbage collection
+              (timeoutHandle as any).unref?.();
+            }),
           ])
         : await runner;
+
+      const duration = Date.now() - startTime;
+
+      // Clean and deduplicate audit methods using utility functions
+      const auditMethods = compact(unique([...(result.audit || []).map((a) => a.detail)]));
 
       const enriched = withPlugins(
         {
@@ -708,9 +813,25 @@ export function createDetector(config: DetectorConfig = {}): DetectorClient {
         event
       );
 
+      logger.debug('Async detection completed', {
+        duration,
+        correlationId,
+        preset,
+        methods: auditMethods,
+      });
+
       hooks.onDetectSuccess?.({ ...event, result: enriched });
       return enriched;
     } catch (error) {
+      const duration = Date.now() - startTime;
+      const caughtError = error instanceof Error ? error : new Error(String(error));
+
+      logger.error('Async detection failed', {
+        duration,
+        correlationId,
+        error: caughtError.message,
+      });
+
       hooks.onDetectError?.({ ...event, error });
       throw error;
     }

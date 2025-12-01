@@ -3,8 +3,11 @@
  * Detects browser and platform capabilities
  */
 
-import type { CapabilityDetectionResult } from '../types';
-import { isBrowser } from './platform';
+import type { CapabilityDetectionResult } from '../types/index.js';
+import { getLogger } from '@kitiumai/logger';
+import { isBrowser } from './platform.js';
+
+const logger = getLogger();
 
 /**
  * Check if Web Components are supported
@@ -243,25 +246,69 @@ export function hasMicrophone(): boolean {
  * Detect all capabilities
  */
 export function detectCapabilities(): CapabilityDetectionResult {
-  return {
-    webComponents: hasWebComponents(),
-    shadowDOM: hasShadowDOM(),
-    customElements: hasCustomElements(),
-    modules: hasModules(),
-    serviceWorker: hasServiceWorker(),
-    webWorker: hasWebWorker(),
-    indexedDB: hasIndexedDB(),
-    localStorage: hasLocalStorage(),
-    sessionStorage: hasSessionStorage(),
-    websocket: hasWebSocket(),
-    webgl: hasWebGL(),
-    webgl2: hasWebGL2(),
-    canvas: hasCanvas(),
-    audio: hasAudio(),
-    video: hasVideo(),
-    geolocation: hasGeolocation(),
-    notification: hasNotification(),
-    camera: hasCamera(),
-    microphone: hasMicrophone(),
-  };
+  const startTime = Date.now();
+
+  try {
+    const result = {
+      webComponents: hasWebComponents(),
+      shadowDOM: hasShadowDOM(),
+      customElements: hasCustomElements(),
+      modules: hasModules(),
+      serviceWorker: hasServiceWorker(),
+      webWorker: hasWebWorker(),
+      indexedDB: hasIndexedDB(),
+      localStorage: hasLocalStorage(),
+      sessionStorage: hasSessionStorage(),
+      websocket: hasWebSocket(),
+      webgl: hasWebGL(),
+      webgl2: hasWebGL2(),
+      canvas: hasCanvas(),
+      audio: hasAudio(),
+      video: hasVideo(),
+      geolocation: hasGeolocation(),
+      notification: hasNotification(),
+      camera: hasCamera(),
+      microphone: hasMicrophone(),
+    };
+
+    const duration = Date.now() - startTime;
+    const enabled = Object.values(result).filter(Boolean).length;
+
+    logger.debug('Capabilities detection completed', {
+      duration,
+      enabled,
+      total: Object.keys(result).length,
+    });
+
+    return result;
+  } catch (error) {
+    const duration = Date.now() - startTime;
+    logger.warn('Capabilities detection encountered errors', {
+      duration,
+      error: error instanceof Error ? error.message : String(error),
+    });
+
+    // Return default capabilities on error
+    return {
+      webComponents: false,
+      shadowDOM: false,
+      customElements: false,
+      modules: false,
+      serviceWorker: false,
+      webWorker: false,
+      indexedDB: false,
+      localStorage: false,
+      sessionStorage: false,
+      websocket: false,
+      webgl: false,
+      webgl2: false,
+      canvas: false,
+      audio: false,
+      video: false,
+      geolocation: false,
+      notification: false,
+      camera: false,
+      microphone: false,
+    };
+  }
 }

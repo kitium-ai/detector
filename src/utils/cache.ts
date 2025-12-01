@@ -2,8 +2,9 @@
  * Cache Utility for Detection Results
  */
 
-import type { CacheAdapter, DetectionResult } from '../types';
+import type { CacheAdapter, DetectionResult } from '../types/index.js';
 import { getLogger } from '@kitiumai/logger';
+import { createCacheOperationError, extractErrorMetadata } from './errors.js';
 
 const logger = getLogger();
 
@@ -50,11 +51,32 @@ let ttl = DEFAULT_TTL;
  * Configure cache adapter and TTL
  */
 export function configureCache(options: { adapter?: CacheAdapter; ttlMs?: number } = {}): void {
-  if (options.adapter) {
-    adapter = options.adapter;
-  }
-  if (typeof options.ttlMs === 'number') {
-    ttl = options.ttlMs;
+  const startTime = Date.now();
+
+  try {
+    if (options.adapter) {
+      adapter = options.adapter;
+    }
+    if (typeof options.ttlMs === 'number') {
+      ttl = options.ttlMs;
+    }
+
+    const duration = Date.now() - startTime;
+    logger.debug('Cache configured', {
+      duration,
+      hasAdapter: options.adapter !== undefined,
+      ttlMs: options.ttlMs,
+    });
+  } catch (error) {
+    const duration = Date.now() - startTime;
+    const caughtError = createCacheOperationError(
+      'configure',
+      error instanceof Error ? error.message : String(error),
+      { duration, ttlMs: options.ttlMs }
+    );
+
+    const errorMetadata = extractErrorMetadata(caughtError);
+    logger.warn('Cache configuration failed', { ...errorMetadata, duration, error });
   }
 }
 
@@ -62,22 +84,43 @@ export function configureCache(options: { adapter?: CacheAdapter; ttlMs?: number
  * Get cached detection result
  */
 export function getCached(): DetectionResult | null {
+  const startTime = Date.now();
+
   try {
     const cached = adapter.get();
 
     if (cached) {
+      const duration = Date.now() - startTime;
+      logger.debug('Cache hit', { duration, source: 'adapter' });
       return cached;
     }
 
     if (typeof window !== 'undefined') {
       const winEntry = (window as any)[CACHE_KEY] as CacheEntry | undefined;
       if (winEntry && Date.now() <= winEntry.expiresAt) {
+        const duration = Date.now() - startTime;
+        logger.debug('Cache hit', { duration, source: 'window' });
         return winEntry.data;
       }
     }
+
+    const duration = Date.now() - startTime;
+    logger.debug('Cache miss', { duration });
     return null;
   } catch (error) {
-    logger.warn('Failed to retrieve cached detection result', { error });
+    const duration = Date.now() - startTime;
+    const caughtError = createCacheOperationError(
+      'get',
+      error instanceof Error ? error.message : String(error),
+      { duration }
+    );
+
+    const errorMetadata = extractErrorMetadata(caughtError);
+    logger.warn('Failed to retrieve cached detection result', {
+      ...errorMetadata,
+      duration,
+      error,
+    });
     return null;
   }
 }
@@ -86,8 +129,11 @@ export function getCached(): DetectionResult | null {
  * Set cached detection result
  */
 export function setCached(data: DetectionResult): void {
+  const startTime = Date.now();
+
   try {
     adapter.set(data, ttl);
+
     if (typeof window !== 'undefined') {
       const entry: CacheEntry = {
         data,
@@ -95,8 +141,22 @@ export function setCached(data: DetectionResult): void {
       };
       (window as any)[CACHE_KEY] = entry;
     }
+
+    const duration = Date.now() - startTime;
+    logger.debug('Cache set successfully', {
+      duration,
+      ttlMs: ttl,
+    });
   } catch (error) {
-    logger.warn('Failed to cache detection result', { error });
+    const duration = Date.now() - startTime;
+    const caughtError = createCacheOperationError(
+      'set',
+      error instanceof Error ? error.message : String(error),
+      { duration, ttlMs: ttl }
+    );
+
+    const errorMetadata = extractErrorMetadata(caughtError);
+    logger.warn('Failed to cache detection result', { ...errorMetadata, duration, error });
   }
 }
 
@@ -104,12 +164,26 @@ export function setCached(data: DetectionResult): void {
  * Clear cached detection result
  */
 export function clearCache(): void {
+  const startTime = Date.now();
+
   try {
     adapter.clear();
+
     if (typeof window !== 'undefined') {
       delete (window as any)[CACHE_KEY];
     }
+
+    const duration = Date.now() - startTime;
+    logger.debug('Cache cleared successfully', { duration });
   } catch (error) {
-    logger.warn('Failed to clear cached detection result', { error });
+    const duration = Date.now() - startTime;
+    const caughtError = createCacheOperationError(
+      'clear',
+      error instanceof Error ? error.message : String(error),
+      { duration }
+    );
+
+    const errorMetadata = extractErrorMetadata(caughtError);
+    logger.warn('Failed to clear cached detection result', { ...errorMetadata, duration, error });
   }
 }

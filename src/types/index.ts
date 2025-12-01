@@ -316,6 +316,30 @@ export interface DetectorPlugin {
 }
 
 /**
+ * Error metadata for structured error handling
+ */
+export interface ErrorMetadata {
+  code?: string;
+  kind?: string;
+  severity?: string;
+  statusCode?: number;
+  retryable?: boolean;
+  help?: string;
+  docs?: string;
+}
+
+/**
+ * Branded type for validated detection context
+ */
+export type ValidatedDetectionContext = {
+  readonly __brand: 'ValidatedDetectionContext';
+  correlationId: string;
+  preset?: DetectorPreset;
+  privacyMode?: PrivacyModeSetting;
+  timestamp: number;
+};
+
+/**
  * Configuration for the simplified detector client
  */
 export interface DetectorConfig {

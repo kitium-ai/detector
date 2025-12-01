@@ -16,6 +16,34 @@ Detect browsers, frameworks, platforms, and capabilities with **zero dependencie
 - **Comprehensive** - Detects platforms, frameworks, browsers, OS, and capabilities
 - **Fast** - Cached detection with minimal overhead
 - **Tree-Shakeable** - Import only what you need
+## Tree-Shaking and Subpath Exports
+
+To minimize bundle size, prefer importing only the modules you need via subpath exports:
+
+```ts
+// Platform-only
+import { detectPlatformInfo, isBrowser } from '@kitiumai/detector/platform';
+
+// Framework-only
+import { detectFrameworkInfo, isReact } from '@kitiumai/detector/framework';
+
+// Capabilities (sync)
+import { hasWebGL, detectCapabilities } from '@kitiumai/detector/capabilities';
+
+// Capabilities (async)
+import { detectCapabilitiesAsync } from '@kitiumai/detector/capabilities-async';
+
+// Utilities
+import { getCached, setCached } from '@kitiumai/detector/utils/cache';
+import { supportsClientHints } from '@kitiumai/detector/utils/client-hints';
+import { detectDeviceInfo } from '@kitiumai/detector/utils/device';
+import { detectLocalizationInfo } from '@kitiumai/detector/utils/localization';
+
+// Types
+import type { DetectionResult, PlatformDetectionResult } from '@kitiumai/detector/types';
+```
+
+The package sets `"sideEffects": false` and exposes granular entry points to help bundlers drop unused code.
 
 > Looking for an enterprise-focused review and roadmap? See the [enterprise readiness assessment](docs/enterprise-evaluation.md).
 

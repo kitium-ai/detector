@@ -119,6 +119,41 @@
       "types": "./dist/detectors/capabilities.d.ts",
       "import": "./dist/detectors/capabilities.mjs",
       "require": "./dist/detectors/capabilities.js"
+    },
+    "./capabilities-async": {
+      "types": "./dist/detectors/capabilities-async.d.ts",
+      "import": "./dist/detectors/capabilities-async.mjs",
+      "require": "./dist/detectors/capabilities-async.js"
+    },
+    "./utils/cache": {
+      "types": "./dist/utils/cache.d.ts",
+      "import": "./dist/utils/cache.mjs",
+      "require": "./dist/utils/cache.js"
+    },
+    "./utils/testing": {
+      "types": "./dist/utils/testing.d.ts",
+      "import": "./dist/utils/testing.mjs",
+      "require": "./dist/utils/testing.js"
+    },
+    "./utils/client-hints": {
+      "types": "./dist/utils/client-hints.d.ts",
+      "import": "./dist/utils/client-hints.mjs",
+      "require": "./dist/utils/client-hints.js"
+    },
+    "./utils/device": {
+      "types": "./dist/utils/device.d.ts",
+      "import": "./dist/utils/device.mjs",
+      "require": "./dist/utils/device.js"
+    },
+    "./utils/localization": {
+      "types": "./dist/utils/localization.d.ts",
+      "import": "./dist/utils/localization.mjs",
+      "require": "./dist/utils/localization.js"
+    },
+    "./types": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/types/index.mjs",
+      "require": "./dist/types/index.js"
     }
   },
   "files": [
@@ -173,15 +208,16 @@
   "license": "MIT",
   "sideEffects": false,
   "dependencies": {
-    "@kitiumai/logger": "^2.0.0",
-    "@kitiumai/types": "^2.0.0",
-    "@kitiumai/utils-ts": "^2.0.1"
+    "@kitiumai/logger": "^2.0.1",
+    "@kitiumai/types": "^2.0.1",
+    "@kitiumai/utils-ts": "^2.0.2",
+    "@kitiumai/error": "^2.0.1"
   },
   "devDependencies": {
-    "@kitiumai/config": "^2.0.0",
-    "@kitiumai/lint": "^2.0.0",
+    "@kitiumai/config": "^2.0.1",
+    "@kitiumai/lint": "^2.0.1",
     "@kitiumai/scripts": "^1.0.0",
-    "@kitiumai/vitest-helpers": "^2.0.0",
+    "@kitiumai/vitest-helpers": "^2.0.1",
     "@types/node": "^24.10.1",
     "@vitest/coverage-v8": "^2.1.8",
     "eslint": "^9.15.0",
