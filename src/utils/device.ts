@@ -76,10 +76,12 @@ function hasTouchSupport(): boolean {
     return false;
   }
 
+  const win = window as unknown as { DocumentTouch?: new () => unknown };
   return (
     'ontouchstart' in window ||
     navigator.maxTouchPoints > 0 ||
-    (!!(window as any).DocumentTouch && document instanceof (window as any).DocumentTouch)
+    (!!win.DocumentTouch &&
+      document instanceof (win.DocumentTouch as unknown as new () => Document))
   );
 }
 
@@ -93,7 +95,7 @@ function getOrientation(): 'portrait' | 'landscape' | undefined {
 
   // Use Screen Orientation API if available
   if ('orientation' in screen) {
-    const orientation = (screen as any).orientation;
+    const orientation = (screen as unknown as { orientation?: { angle?: number } }).orientation;
     if (orientation) {
       const angle = orientation.angle || 0;
       return angle === 90 || angle === -90 || angle === 270 ? 'landscape' : 'portrait';

@@ -789,7 +789,7 @@ export function createDetector(config: DetectorConfig = {}): DetectorClient {
               }, config.latencyBudgetMs);
 
               // Allow garbage collection
-              (timeoutHandle as any).unref?.();
+              (timeoutHandle as unknown as { unref?: () => void }).unref?.();
             }),
           ])
         : await runner;

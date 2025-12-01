@@ -1,3 +1,22 @@
+import { vi } from 'vitest';
+vi.mock('@kitiumai/logger', () => ({
+  getLogger: () => ({
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    debug: vi.fn(),
+    trace: vi.fn(),
+    log: vi.fn(),
+  }),
+  createLogger: () => ({
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    debug: vi.fn(),
+    trace: vi.fn(),
+    log: vi.fn(),
+  }),
+}));
 import * as exported from './index';
 import { detect, detectPlatform, getSummary } from './index';
 

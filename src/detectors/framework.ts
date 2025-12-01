@@ -21,7 +21,8 @@ export function isFlutter(): boolean {
     return false;
   }
   // Explicitly check for both properties and ensure a boolean is always returned
-  return Boolean((window as any).__flutter__ || (window as any).FlutterWebView);
+  const win = window as unknown as Record<string, unknown>;
+  return Boolean(win['__flutter__'] || win['FlutterWebView']);
 }
 
 /**
@@ -33,8 +34,9 @@ export function isReact(): boolean {
   }
 
   // Check for React's presence
+  const win = window as unknown as Record<string, unknown>;
   return !!(
-    (window as any).React || // React global
+    win['React'] || // React global
     document.querySelector('[data-reactroot]') || // React 16
     document.querySelector('[data-reactid]') || // React 15
     document.querySelector('#root.__react_root') || // React 18
@@ -52,11 +54,8 @@ export function isNextJS(): boolean {
     return false;
   }
 
-  return !!(
-    (window as any).__NEXT_DATA__ ||
-    (window as any).next ||
-    document.querySelector('#__next')
-  );
+  const win = window as unknown as Record<string, unknown>;
+  return !!(win['__NEXT_DATA__'] || win['next'] || document.querySelector('#__next'));
 }
 
 /**
@@ -67,9 +66,10 @@ export function isRemix(): boolean {
     return false;
   }
 
+  const win = window as unknown as Record<string, unknown>;
   return !!(
-    (window as any).__remixContext ||
-    (window as any).__remixManifest ||
+    win['__remixContext'] ||
+    win['__remixManifest'] ||
     document.querySelector('[data-remix-root]')
   );
 }
@@ -82,7 +82,8 @@ export function isGatsby(): boolean {
     return false;
   }
 
-  return !!((window as any).___gatsby || document.querySelector('#___gatsby'));
+  const win = window as unknown as Record<string, unknown>;
+  return !!(win['___gatsby'] || document.querySelector('#___gatsby'));
 }
 
 /**
@@ -94,10 +95,11 @@ export function isAngular(): boolean {
   }
 
   // Check for Angular's global objects
+  const win = window as unknown as Record<string, unknown>;
   return !!(
-    (window as any).ng || // Angular debug mode
-    (window as any).getAllAngularRootElements || // Angular elements
-    (window as any).getAllAngularTestabilities || // Angular testability
+    win['ng'] || // Angular debug mode
+    win['getAllAngularRootElements'] || // Angular elements
+    win['getAllAngularTestabilities'] || // Angular testability
     document.querySelector('[ng-version]') || // Angular version attribute
     document.querySelector('[_nghost]') || // Angular host attribute
     document.querySelector('[_ngcontent]') // Angular content attribute
@@ -113,10 +115,12 @@ export function isVue(): boolean {
   }
 
   // Check for Vue's global objects
+  const win = window as unknown as Record<string, unknown>;
+  const vueHook = win['__VUE_DEVTOOLS_GLOBAL_HOOK__'] as Record<string, unknown> | undefined;
   return !!(
-    (window as any).Vue || // Vue 2
-    (window as any).__VUE__ || // Vue 3 devtools
-    (window as any).__VUE_DEVTOOLS_GLOBAL_HOOK__?.Vue || // Vue devtools
+    win['Vue'] || // Vue 2
+    win['__VUE__'] || // Vue 3 devtools
+    vueHook?.['Vue'] || // Vue devtools
     document.querySelector('[data-v-]') || // Vue scoped styles
     document.querySelector('.__vue_app__') || // Vue 3 app
     Array.from(document.querySelectorAll('*')).some((el) =>
@@ -133,7 +137,8 @@ export function isNuxt(): boolean {
     return false;
   }
 
-  return !!((window as any).__NUXT__ || (window as any).$nuxt || document.querySelector('#__nuxt'));
+  const win = window as unknown as Record<string, unknown>;
+  return !!(win['__NUXT__'] || win['$nuxt'] || document.querySelector('#__nuxt'));
 }
 
 /**
@@ -161,8 +166,9 @@ export function isSolid(): boolean {
     return false;
   }
 
+  const win = window as unknown as Record<string, unknown>;
   return !!(
-    (window as any).Solid ||
+    win['Solid'] ||
     Array.from(document.querySelectorAll('*')).some((el) =>
       Object.keys(el).some((key) => key.startsWith('_$'))
     )
@@ -177,7 +183,9 @@ export function isPreact(): boolean {
     return false;
   }
 
-  return !!((window as any).preact || (window as any).h?.name === 'h');
+  const win = window as unknown as Record<string, unknown>;
+  const h = win['h'] as { name?: string } | undefined;
+  return !!(win['preact'] || h?.name === 'h');
 }
 
 /**
@@ -188,8 +196,9 @@ export function isLit(): boolean {
     return false;
   }
 
+  const win = window as unknown as Record<string, unknown>;
   return !!(
-    (window as any).LitElement ||
+    win['LitElement'] ||
     Array.from(document.querySelectorAll('*')).some((el) => el.constructor.name.includes('Lit'))
   );
 }
@@ -198,14 +207,15 @@ export function isLit(): boolean {
  * Check if browser supports Web Components
  */
 export function supportsWebComponents(): boolean {
-  // Explicitly call isBrowser() and cast window to any for safety
+  // Explicitly call isBrowser() and cast window to unknown for safety
   if (!(typeof window !== 'undefined' && typeof document !== 'undefined')) {
     return false;
   }
-  const win = window as any;
+  const win = window as unknown as Record<string, unknown>;
+  const customElements = win['customElements'] as { define?: unknown } | undefined;
   return !!(
-    win.customElements &&
-    win.customElements.define &&
+    customElements &&
+    customElements.define &&
     typeof HTMLElement !== 'undefined' &&
     'attachShadow' in HTMLElement.prototype
   );
@@ -236,7 +246,9 @@ export function getReactVersion(): string | undefined {
     return undefined;
   }
 
-  return (window as any).React?.version;
+  const win = window as unknown as Record<string, unknown>;
+  const react = win['React'] as { version?: string } | undefined;
+  return react?.version;
 }
 
 /**
@@ -259,7 +271,10 @@ export function getVueVersion(): string | undefined {
     return undefined;
   }
 
-  return (window as any).Vue?.version || (window as any).__VUE_DEVTOOLS_GLOBAL_HOOK__?.Vue?.version;
+  const win = window as unknown as Record<string, unknown>;
+  const vue = win['Vue'] as { version?: string } | undefined;
+  const hook = win['__VUE_DEVTOOLS_GLOBAL_HOOK__'] as { Vue?: { version?: string } } | undefined;
+  return vue?.version || hook?.['Vue']?.version;
 }
 
 /**

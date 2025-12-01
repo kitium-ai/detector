@@ -66,40 +66,44 @@ export function isElectron(): boolean {
   }
 
   const userAgent = navigator.userAgent.toLowerCase();
-  return (
-    userAgent.includes('electron') || !!(window as any).process?.type || !!(window as any).electron
-  );
+  const win = window as unknown as Record<string, unknown>;
+  const proc = win['process'] as { type?: unknown } | undefined;
+  return userAgent.includes('electron') || !!proc?.type || !!win['electron'];
 }
 
 /**
  * Detect if running in Capacitor
  */
 export function isCapacitor(): boolean {
-  return !!(window as any).Capacitor;
+  return !!(window as unknown as Record<string, unknown>)['Capacitor'];
 }
 
 /**
  * Detect if running in Cordova
  */
 export function isCordova(): boolean {
-  return !!(window as any).cordova;
+  return !!(window as unknown as Record<string, unknown>)['cordova'];
 }
 
 /**
  * Detect if running in NW.js
  */
 export function isNwjs(): boolean {
-  return !!(window as any).nw || !!(window as any).require?.('nw.gui');
+  const win = window as unknown as Record<string, unknown>;
+  const req = win['require'] as ((mod: string) => unknown) | undefined;
+  return !!win['nw'] || !!req?.('nw.gui');
 }
 
 /**
  * Detect if running in Web Worker
  */
 export function isWebWorker(): boolean {
+  const selfScope = self as unknown as Record<string, unknown>;
   return (
     typeof self !== 'undefined' &&
-    typeof (self as any).importScripts === 'function' &&
-    (self as any).constructor?.name === 'DedicatedWorkerGlobalScope'
+    typeof selfScope['importScripts'] === 'function' &&
+    (selfScope['constructor'] as { name?: string } | undefined)?.name ===
+      'DedicatedWorkerGlobalScope'
   );
 }
 
@@ -107,8 +111,10 @@ export function isWebWorker(): boolean {
  * Detect if running in Service Worker
  */
 export function isServiceWorker(): boolean {
+  const selfScope = self as unknown as Record<string, unknown>;
   return (
-    typeof self !== 'undefined' && (self as any).constructor?.name === 'ServiceWorkerGlobalScope'
+    typeof self !== 'undefined' &&
+    (selfScope['constructor'] as { name?: string } | undefined)?.name === 'ServiceWorkerGlobalScope'
   );
 }
 
@@ -188,9 +194,10 @@ export function isMobile(): boolean {
   }
 
   const userAgent = navigator.userAgent.toLowerCase();
+  const nav = navigator as unknown as { platform?: string; maxTouchPoints?: number };
   return (
     /mobile|android|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent) ||
-    ((navigator as any).platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+    (nav.platform === 'MacIntel' && (nav.maxTouchPoints ?? 0) > 1)
   );
 }
 
@@ -236,8 +243,8 @@ export function detectDesktopOS(): DesktopOSType {
   }
 
   const userAgent = navigator.userAgent.toLowerCase();
-  const platform =
-    (navigator as any).userAgentData?.platform?.toLowerCase() || navigator.platform.toLowerCase();
+  const nav = navigator as unknown as { userAgentData?: { platform?: string } };
+  const platform = nav.userAgentData?.platform?.toLowerCase() || navigator.platform.toLowerCase();
 
   if (platform.includes('win')) {
     return 'windows';

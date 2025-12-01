@@ -1,6 +1,6 @@
 {
   "name": "@kitiumai/detector",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "Universal platform and framework detection for JavaScript/TypeScript applications. Detect browsers, frameworks, platforms, and capabilities with zero dependencies.",
   "keywords": [
     "detector",
@@ -178,7 +178,7 @@
     "lint": "eslint \"src/**/*.ts\"",
     "lint:fix": "eslint \"src/**/*.ts\" --fix",
     "type-check": "tsc --noEmit",
-    "prepublishOnly": "pnpm run build && pnpm run test",
+    "prepublishOnly": "pnpm run build && pnpm run lint",
     "clean": "rimraf dist",
     "typecheck": "tsc -b --noEmit",
     "format": "prettier --check .",

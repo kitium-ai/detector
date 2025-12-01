@@ -36,13 +36,17 @@ export function getClientHintsLowEntropy(): ClientHintsData | null {
     return null;
   }
 
-  const uaData = (navigator as any).userAgentData;
+  const uaData = (
+    navigator as unknown as {
+      userAgentData?: { brands?: unknown[]; mobile?: boolean; platform?: string };
+    }
+  ).userAgentData;
   if (!uaData) {
     return null;
   }
 
   return {
-    brands: uaData.brands || [],
+    brands: (uaData.brands as Array<{ brand: string; version: string }>) || [],
     mobile: uaData.mobile || false,
     platform: uaData.platform || '',
   };
@@ -57,19 +61,29 @@ export async function getClientHintsHighEntropy(): Promise<ClientHintsData | nul
     return null;
   }
 
-  const uaData = (navigator as any).userAgentData;
+  const uaData = (
+    navigator as unknown as {
+      userAgentData?: { getHighEntropyValues?: (hints: string[]) => Promise<unknown> };
+    }
+  ).userAgentData;
   if (!uaData || typeof uaData.getHighEntropyValues !== 'function') {
     return getClientHintsLowEntropy();
   }
 
   try {
-    const highEntropyValues = await uaData.getHighEntropyValues([
+    const highEntropyValues = (await uaData.getHighEntropyValues([
       'platformVersion',
       'architecture',
       'bitness',
       'model',
       'uaFullVersion',
-    ]);
+    ])) as {
+      platformVersion?: string;
+      architecture?: string;
+      bitness?: string;
+      model?: string;
+      uaFullVersion?: string;
+    };
 
     const lowEntropy = getClientHintsLowEntropy();
     if (!lowEntropy) {

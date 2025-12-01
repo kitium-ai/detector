@@ -96,7 +96,9 @@ export function getCached(): DetectionResult | null {
     }
 
     if (typeof window !== 'undefined') {
-      const winEntry = (window as any)[CACHE_KEY] as CacheEntry | undefined;
+      const winEntry = (window as unknown as Record<string, unknown>)[CACHE_KEY] as
+        | CacheEntry
+        | undefined;
       if (winEntry && Date.now() <= winEntry.expiresAt) {
         const duration = Date.now() - startTime;
         logger.debug('Cache hit', { duration, source: 'window' });
@@ -139,7 +141,7 @@ export function setCached(data: DetectionResult): void {
         data,
         expiresAt: Date.now() + ttl,
       };
-      (window as any)[CACHE_KEY] = entry;
+      (window as unknown as Record<string, unknown>)[CACHE_KEY] = entry;
     }
 
     const duration = Date.now() - startTime;
@@ -170,7 +172,7 @@ export function clearCache(): void {
     adapter.clear();
 
     if (typeof window !== 'undefined') {
-      delete (window as any)[CACHE_KEY];
+      delete (window as unknown as Record<string, unknown>)[CACHE_KEY];
     }
 
     const duration = Date.now() - startTime;

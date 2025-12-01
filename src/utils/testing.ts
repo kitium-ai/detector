@@ -111,7 +111,7 @@ export function validateDetection(result: DetectionResult): {
     ];
 
     for (const cap of requiredCapabilities) {
-      if (typeof (result.capabilities as any)[cap] !== 'boolean') {
+      if (typeof (result.capabilities as unknown as Record<string, unknown>)[cap] !== 'boolean') {
         errors.push(`Capability ${cap} must be a boolean`);
       }
     }
